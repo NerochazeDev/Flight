@@ -6,10 +6,11 @@ import SearchForm from "@/components/search-form";
 import LoadingState from "@/components/loading-state";
 import FlightResults from "@/components/flight-results";
 import PassengerForm from "@/components/passenger-form";
+import PaymentForm from "@/components/payment-form";
 import BookingConfirmation from "@/components/booking-confirmation";
 import type { Flight, Booking } from "@shared/schema";
 
-export type BookingStep = "search" | "select" | "passenger" | "confirmation";
+export type BookingStep = "search" | "select" | "passenger" | "payment" | "confirmation";
 
 export interface SearchParams {
   from: string;
@@ -34,24 +35,25 @@ export default function Home() {
   const [flightResults, setFlightResults] = useState<Flight[]>([]);
   const [selectedFlight, setSelectedFlight] = useState<Flight | null>(null);
   const [booking, setBooking] = useState<Booking | null>(null);
+  const [paymentData, setPaymentData] = useState<any>(null);
 
   const handleSearch = async (params: SearchParams) => {
     setSearchParams(params);
     setIsSearching(true);
     setCurrentStep("search");
-    
+
     try {
       const response = await fetch(
         `/api/flights/search?from=${params.from}&to=${params.to}&date=${params.departure}&returnDate=${params.return}&passengers=${params.passengers}&class=${params.class}`
       );
-      
+
       if (!response.ok) {
         throw new Error("Failed to search flights");
       }
-      
+
       const flights = await response.json();
       setFlightResults(flights);
-      
+
       setTimeout(() => {
         setIsSearching(false);
         setCurrentStep("select");
@@ -67,13 +69,23 @@ export default function Home() {
     setCurrentStep("passenger");
   };
 
-  const handleBookingComplete = (newBooking: Booking) => {
-    setBooking(newBooking);
-    setCurrentStep("confirmation");
-  };
-
   const handleBackToResults = () => {
     setCurrentStep("select");
+    setSelectedFlight(null);
+  };
+
+  const handleContinueToPayment = (passengerDetails: any, addOns: string[], totalAmount: string) => {
+    setPaymentData({ passengerDetails, addOns, totalAmount });
+    setCurrentStep("payment");
+  };
+
+  const handleBackToPassenger = () => {
+    setCurrentStep("passenger");
+  };
+
+  const handlePaymentComplete = (newBooking: Booking) => {
+    setBooking(newBooking);
+    setCurrentStep("confirmation");
   };
 
   const handleBackToSearch = () => {
@@ -85,7 +97,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      
+
       {currentStep === "search" && (
         <div className="bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 relative overflow-hidden">
           <div className="absolute inset-0 bg-black/20"></div>
@@ -103,13 +115,13 @@ export default function Home() {
           </div>
         </div>
       )}
-      
+
       {currentStep !== "search" && (
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <ProgressSteps currentStep={currentStep} />
-          
+
           {isSearching && <LoadingState />}
-          
+
           {currentStep === "select" && (
             <FlightResults 
               flights={flightResults}
@@ -117,16 +129,28 @@ export default function Home() {
               onBackToSearch={handleBackToSearch}
             />
           )}
-          
+
           {currentStep === "passenger" && selectedFlight && (
             <PassengerForm 
               flight={selectedFlight}
               passengers={searchParams.passengers}
-              onBookingComplete={handleBookingComplete}
+              onContinueToPayment={handleContinueToPayment}
               onBack={handleBackToResults}
             />
           )}
-          
+
+          {currentStep === "payment" && selectedFlight && paymentData && (
+            <PaymentForm 
+              flight={selectedFlight}
+              passengers={searchParams.passengers}
+              totalAmount={paymentData.totalAmount}
+              passengerDetails={paymentData.passengerDetails}
+              addOns={paymentData.addOns}
+              onPaymentComplete={handlePaymentComplete}
+              onBack={handleBackToPassenger}
+            />
+          )}
+
           {currentStep === "confirmation" && booking && selectedFlight && (
             <BookingConfirmation 
               booking={booking}
@@ -135,7 +159,7 @@ export default function Home() {
           )}
         </main>
       )}
-      
+
 
     </div>
   );

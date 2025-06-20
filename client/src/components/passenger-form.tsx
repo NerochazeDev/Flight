@@ -11,7 +11,7 @@ import type { Flight, Booking } from "@shared/schema";
 interface PassengerFormProps {
   flight: Flight;
   passengers: number;
-  onBookingComplete: (booking: Booking) => void;
+  onContinueToPayment: (details: PassengerDetails, addOns: string[], total: string) => void;
   onBack: () => void;
 }
 
@@ -28,9 +28,8 @@ interface AddOns {
   travelInsurance: boolean;
 }
 
-export default function PassengerForm({ flight, passengers, onBookingComplete, onBack }: PassengerFormProps) {
+export default function PassengerForm({ flight, passengers, onContinueToPayment, onBack }: PassengerFormProps) {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [passengerDetails, setPassengerDetails] = useState<PassengerDetails>({
     firstName: "",
     lastName: "",
@@ -51,56 +50,15 @@ export default function PassengerForm({ flight, passengers, onBookingComplete, o
     return total.toFixed(2);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    
+    const selectedAddOns = [];
+    if (addOns.extraBaggage) selectedAddOns.push("Extra baggage");
+    if (addOns.seatSelection) selectedAddOns.push("Seat selection");
+    if (addOns.travelInsurance) selectedAddOns.push("Travel insurance");
 
-    try {
-      const selectedAddOns = [];
-      if (addOns.extraBaggage) selectedAddOns.push("Extra baggage");
-      if (addOns.seatSelection) selectedAddOns.push("Seat selection");
-      if (addOns.travelInsurance) selectedAddOns.push("Travel insurance");
-
-      const bookingData = {
-        flightId: flight.id,
-        passengerName: `${passengerDetails.firstName} ${passengerDetails.lastName}`,
-        passengerEmail: passengerDetails.email,
-        passengerPhone: passengerDetails.phone,
-        passengers,
-        totalPrice: calculateTotal(),
-        addOns: selectedAddOns,
-        status: "confirmed",
-      };
-
-      const response = await fetch("/api/bookings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(bookingData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create booking");
-      }
-
-      const booking = await response.json();
-      onBookingComplete(booking);
-      
-      toast({
-        title: "Booking Confirmed!",
-        description: `Your booking reference is ${booking.bookingReference}`,
-      });
-    } catch (error) {
-      console.error("Booking error:", error);
-      toast({
-        title: "Booking Failed",
-        description: "There was an error processing your booking. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    onContinueToPayment(passengerDetails, selectedAddOns, calculateTotal());
   };
 
   const updatePassengerDetails = (key: keyof PassengerDetails, value: string) => {
@@ -212,9 +170,8 @@ export default function PassengerForm({ flight, passengers, onBookingComplete, o
             <Button
               type="submit"
               className="bg-primary hover:bg-primary-dark text-white px-8 py-3"
-              disabled={isSubmitting}
             >
-              {isSubmitting ? "Processing..." : "Continue to Payment"}
+              Continue to Payment
             </Button>
           </div>
         </form>

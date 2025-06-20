@@ -10,6 +10,7 @@ export default function ProgressSteps({ currentStep }: ProgressStepsProps) {
     { key: "search", label: "Search" },
     { key: "select", label: "Choose flights" },
     { key: "passenger", label: "Passenger details" },
+    { key: "payment", label: "Payment" },
     { key: "confirmation", label: "Confirmation" },
   ];
 
@@ -17,7 +18,8 @@ export default function ProgressSteps({ currentStep }: ProgressStepsProps) {
     if (step === "search") return 0;
     if (step === "select") return 1;
     if (step === "passenger") return 2;
-    if (step === "confirmation") return 3;
+    if (step === "payment") return 3;
+    if (step === "confirmation") return 4;
     return 0;
   };
 

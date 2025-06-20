@@ -111,16 +111,13 @@ export default function FlightResults({ flights, onFlightSelect, onBackToSearch 
 
                 {/* Price & Select */}
                 <div className="flex items-center space-x-4">
-                  <div className="text-right">
-                    <div className="text-xl font-bold text-gray-900">£{flight.price}</div>
-                    <div className="text-xs text-gray-500">per person</div>
-                    {parseFloat(flight.price) < 100 && (
-                      <Badge className="bg-green-100 text-green-800 text-xs mt-1">Great price</Badge>
-                    )}
+                  <div className="text-right min-w-[120px]">
+                    <div className="text-2xl font-bold text-gray-900">£{flight.price}</div>
+                    <div className="text-sm text-gray-500">per person</div>
                   </div>
                   <Button
                     onClick={() => onFlightSelect(flight)}
-                    className="bg-gradient-to-r from-blue-500 to-green-400 hover:from-blue-600 hover:to-green-500 text-white px-6 py-2 rounded-full font-medium"
+                    className="bg-gradient-to-r from-blue-500 to-green-400 hover:from-blue-600 hover:to-green-500 text-white px-6 py-2 rounded-full font-medium whitespace-nowrap"
                   >
                     Select
                   </Button>
