@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import ProgressSteps from "@/components/progress-steps";
@@ -6,11 +6,10 @@ import SearchForm from "@/components/search-form";
 import LoadingState from "@/components/loading-state";
 import FlightResults from "@/components/flight-results";
 import PassengerForm from "@/components/passenger-form";
-import PaymentForm from "@/components/payment-form";
 import BookingConfirmation from "@/components/booking-confirmation";
 import type { Flight, Booking } from "@shared/schema";
 
-export type BookingStep = "search" | "select" | "passenger" | "payment" | "confirmation";
+export type BookingStep = "search" | "select" | "passenger" | "confirmation";
 
 export interface SearchParams {
   from: string;
@@ -35,7 +34,6 @@ export default function Home() {
   const [flightResults, setFlightResults] = useState<Flight[]>([]);
   const [selectedFlight, setSelectedFlight] = useState<Flight | null>(null);
   const [booking, setBooking] = useState<Booking | null>(null);
-  const [totalAmount, setTotalAmount] = useState<string>("0");
 
   const handleSearch = async (params: SearchParams) => {
     setSearchParams(params);
@@ -69,24 +67,19 @@ export default function Home() {
     setCurrentStep("passenger");
   };
 
-  const handlePassengerComplete = (amount: string) => {
-    setTotalAmount(amount);
-    setCurrentStep("payment");
-  };
-
-  const handlePaymentComplete = (newBooking: Booking) => {
+  const handleBookingComplete = (newBooking: Booking) => {
     setBooking(newBooking);
     setCurrentStep("confirmation");
+  };
+
+  const handleBackToResults = () => {
+    setCurrentStep("select");
   };
 
   const handleBackToSearch = () => {
     setCurrentStep("search");
     setFlightResults([]);
     setSelectedFlight(null);
-  };
-
-  const handleBackToResults = () => {
-    setCurrentStep("select");
   };
 
   return (
@@ -129,18 +122,8 @@ export default function Home() {
             <PassengerForm 
               flight={selectedFlight}
               passengers={searchParams.passengers}
-              onBookingComplete={handlePassengerComplete}
+              onBookingComplete={handleBookingComplete}
               onBack={handleBackToResults}
-            />
-          )}
-
-          {currentStep === "payment" && selectedFlight && (
-            <PaymentForm
-              flight={selectedFlight}
-              passengers={searchParams.passengers}
-              totalAmount={totalAmount}
-              onPaymentComplete={handlePaymentComplete}
-              onBack={() => setCurrentStep("passenger")}
             />
           )}
           

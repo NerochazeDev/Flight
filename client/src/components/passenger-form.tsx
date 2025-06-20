@@ -11,7 +11,7 @@ import type { Flight, Booking } from "@shared/schema";
 interface PassengerFormProps {
   flight: Flight;
   passengers: number;
-  onBookingComplete: (totalAmount: string) => void;
+  onBookingComplete: (booking: Booking) => void;
   onBack: () => void;
 }
 
@@ -84,8 +84,13 @@ export default function PassengerForm({ flight, passengers, onBookingComplete, o
         throw new Error("Failed to create booking");
       }
 
-      // Pass total amount to proceed to payment
-      onBookingComplete(calculateTotal());
+      const booking = await response.json();
+      onBookingComplete(booking);
+      
+      toast({
+        title: "Booking Confirmed!",
+        description: `Your booking reference is ${booking.bookingReference}`,
+      });
     } catch (error) {
       console.error("Booking error:", error);
       toast({
@@ -107,146 +112,113 @@ export default function PassengerForm({ flight, passengers, onBookingComplete, o
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <Card className="shadow-sm border border-gray-200 rounded-lg overflow-hidden">
-        <div className="bg-white border-b border-gray-100 px-6 py-4">
-          <h3 className="text-xl font-semibold text-gray-900">Passenger details</h3>
-        </div>
-        <CardContent className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">First name *</Label>
-                <Input
-                  id="firstName"
-                  value={passengerDetails.firstName}
-                  onChange={(e) => updatePassengerDetails("firstName", e.target.value)}
-                  placeholder="First name"
-                  className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                  required
+    <Card className="shadow-lg mb-8">
+      <CardContent className="p-6">
+        <h3 className="text-xl font-bold text-gray-900 mb-6">Passenger Details</h3>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="firstName">First Name *</Label>
+              <Input
+                id="firstName"
+                value={passengerDetails.firstName}
+                onChange={(e) => updatePassengerDetails("firstName", e.target.value)}
+                placeholder="Enter first name"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lastName">Last Name *</Label>
+              <Input
+                id="lastName"
+                value={passengerDetails.lastName}
+                onChange={(e) => updatePassengerDetails("lastName", e.target.value)}
+                placeholder="Enter last name"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={passengerDetails.email}
+                onChange={(e) => updatePassengerDetails("email", e.target.value)}
+                placeholder="Enter email address"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number *</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={passengerDetails.phone}
+                onChange={(e) => updatePassengerDetails("phone", e.target.value)}
+                placeholder="Enter phone number"
+                required
+              />
+            </div>
+          </div>
+          
+          <div className="pt-4 border-t border-gray-200">
+            <h4 className="text-lg font-semibold text-gray-900 mb-4">Add-ons</h4>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="extraBaggage"
+                  checked={addOns.extraBaggage}
+                  onCheckedChange={(checked) => updateAddOns("extraBaggage", checked as boolean)}
                 />
+                <Label htmlFor="extraBaggage" className="text-sm text-gray-700">
+                  Extra baggage (+£25)
+                </Label>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">Last name *</Label>
-                <Input
-                  id="lastName"
-                  value={passengerDetails.lastName}
-                  onChange={(e) => updatePassengerDetails("lastName", e.target.value)}
-                  placeholder="Last name"
-                  className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                  required
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="seatSelection"
+                  checked={addOns.seatSelection}
+                  onCheckedChange={(checked) => updateAddOns("seatSelection", checked as boolean)}
                 />
+                <Label htmlFor="seatSelection" className="text-sm text-gray-700">
+                  Seat selection (+£15)
+                </Label>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email address *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={passengerDetails.email}
-                  onChange={(e) => updatePassengerDetails("email", e.target.value)}
-                  placeholder="Email address"
-                  className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                  required
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="travelInsurance"
+                  checked={addOns.travelInsurance}
+                  onCheckedChange={(checked) => updateAddOns("travelInsurance", checked as boolean)}
                 />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-sm font-medium text-gray-700">Phone number *</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={passengerDetails.phone}
-                  onChange={(e) => updatePassengerDetails("phone", e.target.value)}
-                  placeholder="Phone number"
-                  className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                  required
-                />
+                <Label htmlFor="travelInsurance" className="text-sm text-gray-700">
+                  Travel insurance (+£12)
+                </Label>
               </div>
             </div>
-            
-            <div className="pt-6 border-t border-gray-200">
-              <h4 className="text-lg font-semibold text-gray-900 mb-6">Extras</h4>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                  <div className="flex items-center space-x-3">
-                    <Checkbox
-                      id="extraBaggage"
-                      checked={addOns.extraBaggage}
-                      onCheckedChange={(checked) => updateAddOns("extraBaggage", checked as boolean)}
-                    />
-                    <div>
-                      <Label htmlFor="extraBaggage" className="text-sm font-medium text-gray-900 cursor-pointer">
-                        Extra baggage
-                      </Label>
-                      <p className="text-xs text-gray-500">Additional 20kg checked bag</p>
-                    </div>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">+£25</span>
-                </div>
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                  <div className="flex items-center space-x-3">
-                    <Checkbox
-                      id="seatSelection"
-                      checked={addOns.seatSelection}
-                      onCheckedChange={(checked) => updateAddOns("seatSelection", checked as boolean)}
-                    />
-                    <div>
-                      <Label htmlFor="seatSelection" className="text-sm font-medium text-gray-900 cursor-pointer">
-                        Seat selection
-                      </Label>
-                      <p className="text-xs text-gray-500">Choose your preferred seat</p>
-                    </div>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">+£15</span>
-                </div>
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                  <div className="flex items-center space-x-3">
-                    <Checkbox
-                      id="travelInsurance"
-                      checked={addOns.travelInsurance}
-                      onCheckedChange={(checked) => updateAddOns("travelInsurance", checked as boolean)}
-                    />
-                    <div>
-                      <Label htmlFor="travelInsurance" className="text-sm font-medium text-gray-900 cursor-pointer">
-                        Travel insurance
-                      </Label>
-                      <p className="text-xs text-gray-500">Coverage for trip cancellation and medical expenses</p>
-                    </div>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">+£12</span>
-                </div>
-              </div>
-            </div>
+          </div>
 
-            <div className="pt-6 border-t border-gray-200">
-              <div className="bg-blue-50 rounded-lg p-6">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-lg font-semibold text-gray-900">Total price</p>
-                    <p className="text-sm text-gray-600">{passengers} passenger{passengers > 1 ? 's' : ''}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-blue-600">£{calculateTotal()}</div>
-                  </div>
-                </div>
-              </div>
+          <div className="pt-4 border-t border-gray-200">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-lg font-semibold">Total:</span>
+              <span className="text-2xl font-bold text-primary">£{calculateTotal()}</span>
             </div>
+          </div>
 
-            <div className="flex items-center justify-between pt-6">
-              <Button type="button" variant="outline" onClick={onBack} className="px-6 py-2">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-              <Button
-                type="submit"
-                className="bg-gradient-to-r from-blue-500 to-green-400 hover:from-blue-600 hover:to-green-500 text-white px-8 py-3 rounded-full font-semibold shadow-md"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Processing..." : "Continue to payment"}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+          <div className="flex items-center justify-between pt-6">
+            <Button type="button" variant="outline" onClick={onBack}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Results
+            </Button>
+            <Button
+              type="submit"
+              className="bg-primary hover:bg-primary-dark text-white px-8 py-3"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Processing..." : "Continue to Payment"}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
