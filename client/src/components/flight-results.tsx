@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plane, Wifi, Coffee, Luggage, Ban, ShoppingCart, ArrowLeft } from "lucide-react";
+import { Plane, ArrowLeft, Filter, SlidersHorizontal } from "lucide-react";
 import type { Flight } from "@shared/schema";
 
 interface FlightResultsProps {
@@ -12,23 +12,15 @@ interface FlightResultsProps {
 }
 
 export default function FlightResults({ flights, onFlightSelect, onBackToSearch }: FlightResultsProps) {
-  const getAirlineIcon = (airlineCode: string) => {
+  const getAirlineLogo = (airlineCode: string) => {
+    // In a real implementation, these would be actual airline logos
     const colors = {
-      KL: "bg-blue-600",
-      BA: "bg-red-600", 
-      FR: "bg-yellow-500",
+      KL: "bg-sky-600",
+      BA: "bg-blue-800", 
+      FR: "bg-yellow-400",
       U2: "bg-orange-500",
     };
     return colors[airlineCode as keyof typeof colors] || "bg-gray-600";
-  };
-
-  const getAmenityIcon = (amenity: string) => {
-    if (amenity.includes("WiFi")) return <Wifi className="w-4 h-4" />;
-    if (amenity.includes("Meal") || amenity.includes("Snack")) return <Coffee className="w-4 h-4" />;
-    if (amenity.includes("Checked bag")) return <Luggage className="w-4 h-4" />;
-    if (amenity.includes("No checked bag")) return <Ban className="w-4 h-4 text-red-500" />;
-    if (amenity.includes("Food for purchase")) return <ShoppingCart className="w-4 h-4" />;
-    return null;
   };
 
   if (flights.length === 0) {
@@ -45,103 +37,111 @@ export default function FlightResults({ flights, onFlightSelect, onBackToSearch 
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6 pb-4 border-b">
         <div className="flex items-center space-x-4">
-          <Button onClick={onBackToSearch} variant="outline" size="sm">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Search
+          <Button onClick={onBackToSearch} variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Edit search
           </Button>
-          <h3 className="text-xl font-bold text-gray-900">Available Flights</h3>
+          <h2 className="text-lg font-semibold text-gray-900">Choose a departing flight</h2>
         </div>
-        <div className="flex items-center space-x-4">
-          <Select defaultValue="price">
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="price">Sort by Price</SelectItem>
-              <SelectItem value="duration">Sort by Duration</SelectItem>
-              <SelectItem value="departure">Sort by Departure</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex items-center space-x-3">
+          <Button variant="outline" size="sm" className="text-gray-600">
+            <Filter className="w-4 h-4 mr-2" />
+            Filter
+          </Button>
+          <Button variant="outline" size="sm" className="text-gray-600">
+            <SlidersHorizontal className="w-4 h-4 mr-2" />
+            Sort
+          </Button>
         </div>
       </div>
 
-      {flights.map((flight) => (
-        <Card key={flight.id} className="shadow-lg hover:shadow-xl transition-shadow border border-gray-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-4">
-                <div className={`w-12 h-12 ${getAirlineIcon(flight.airlineCode)} rounded-lg flex items-center justify-center`}>
-                  <span className="text-white font-bold text-sm">{flight.airlineCode}</span>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900">{flight.airline}</h4>
-                  <p className="text-sm text-gray-600">{flight.flightNumber} • Economy</p>
-                </div>
-                {parseFloat(flight.price) < 100 && (
-                  <Badge className="bg-accent-orange text-white">Best Price</Badge>
-                )}
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-gray-900">£{flight.price}</div>
-                <div className="text-sm text-gray-600">per person</div>
-              </div>
-            </div>
+      {/* Sort options */}
+      <div className="flex space-x-2 mb-6">
+        <Button variant="outline" size="sm" className="bg-blue-50 text-blue-600 border-blue-200">
+          Best
+        </Button>
+        <Button variant="outline" size="sm" className="text-gray-600">
+          Cheapest
+        </Button>
+        <Button variant="outline" size="sm" className="text-gray-600">
+          Fastest
+        </Button>
+      </div>
 
-            <div className="grid grid-cols-3 gap-4 items-center">
-              <div className="text-center">
-                <div className="text-lg font-semibold text-gray-900">{flight.departureTime}</div>
-                <div className="text-sm text-gray-600">{flight.departureAirport}</div>
-                <div className="text-xs text-gray-500">
-                  {flight.departureAirport === "LHR" && "London Heathrow"}
-                  {flight.departureAirport === "LGW" && "London Gatwick"}
-                  {flight.departureAirport === "STN" && "London Stansted"}
-                  {flight.departureAirport === "MAN" && "Manchester"}
-                  {flight.departureAirport === "BHX" && "Birmingham"}
-                  {flight.departureAirport === "EDI" && "Edinburgh"}
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="w-16 h-px bg-gray-300"></div>
-                  <Plane className="text-primary w-4 h-4" />
-                  <div className="w-16 h-px bg-gray-300"></div>
-                </div>
-                <div className="text-sm text-gray-600 mt-1">{flight.duration}</div>
-                <div className="text-xs text-gray-500">{flight.stops === 0 ? "Direct" : `${flight.stops} stop${flight.stops > 1 ? 's' : ''}`}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-lg font-semibold text-gray-900">{flight.arrivalTime}</div>
-                <div className="text-sm text-gray-600">{flight.arrivalAirport}</div>
-                <div className="text-xs text-gray-500">
-                  {flight.arrivalAirport === "AMS" && "Amsterdam"}
-                  {flight.arrivalAirport === "RTM" && "Rotterdam"}
-                  {flight.arrivalAirport === "EIN" && "Eindhoven"}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
-              <div className="flex items-center space-x-6 text-sm text-gray-600">
-                {flight.amenities?.map((amenity, index) => (
-                  <div key={index} className="flex items-center space-x-1">
-                    {getAmenityIcon(amenity)}
-                    <span>{amenity}</span>
+      {/* Flight Cards */}
+      <div className="space-y-3">
+        {flights.map((flight) => (
+          <Card key={flight.id} className="border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                {/* Airline Logo & Times */}
+                <div className="flex items-center space-x-6">
+                  <div className={`w-8 h-8 ${getAirlineLogo(flight.airlineCode)} rounded flex items-center justify-center`}>
+                    <span className="text-white font-bold text-xs">{flight.airlineCode}</span>
                   </div>
-                ))}
+                  
+                  <div className="flex items-center space-x-8">
+                    <div className="text-center">
+                      <div className="text-lg font-semibold text-gray-900">{flight.departureTime}</div>
+                      <div className="text-sm text-gray-500">{flight.departureAirport}</div>
+                    </div>
+                    
+                    <div className="flex flex-col items-center space-y-1">
+                      <div className="text-xs text-gray-500">{flight.duration}</div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-16 h-px bg-gray-300"></div>
+                        <Plane className="w-4 h-4 text-gray-400" />
+                        <div className="w-16 h-px bg-gray-300"></div>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {(flight.stops || 0) === 0 ? "Direct" : `${flight.stops} stop${(flight.stops || 0) > 1 ? 's' : ''}`}
+                      </div>
+                    </div>
+                    
+                    <div className="text-center">
+                      <div className="text-lg font-semibold text-gray-900">{flight.arrivalTime}</div>
+                      <div className="text-sm text-gray-500">{flight.arrivalAirport}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Price & Select */}
+                <div className="flex items-center space-x-4">
+                  <div className="text-right">
+                    <div className="text-xl font-bold text-gray-900">£{flight.price}</div>
+                    <div className="text-xs text-gray-500">per person</div>
+                    {parseFloat(flight.price) < 100 && (
+                      <Badge className="bg-green-100 text-green-800 text-xs mt-1">Great price</Badge>
+                    )}
+                  </div>
+                  <Button
+                    onClick={() => onFlightSelect(flight)}
+                    className="bg-gradient-to-r from-blue-500 to-green-400 hover:from-blue-600 hover:to-green-500 text-white px-6 py-2 rounded-full font-medium"
+                  >
+                    Select
+                  </Button>
+                </div>
               </div>
-              <Button
-                onClick={() => onFlightSelect(flight)}
-                className="bg-primary hover:bg-primary-dark text-white px-6 py-2"
-              >
-                Select Flight
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+
+              {/* Airline name and details */}
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <span>{flight.airline} • {flight.flightNumber}</span>
+                  <div className="flex items-center space-x-4">
+                    {flight.amenities?.slice(0, 2).map((amenity, index) => (
+                      <span key={index} className="text-xs">{amenity}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

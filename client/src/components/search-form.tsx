@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Plane, PlaneTakeoff, PlaneLanding, Search } from "lucide-react";
+import { Plane, ArrowLeftRight, Calendar, Users } from "lucide-react";
 import type { SearchParams } from "@/pages/home";
 
 interface SearchFormProps {
@@ -23,118 +22,114 @@ export default function SearchForm({ searchParams, onSearch, isSearching }: Sear
   };
 
   return (
-    <Card className="shadow-lg mb-8">
-      <CardContent className="p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Find Your Perfect Flight</h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="from">From</Label>
-              <div className="relative">
+    <Card className="bg-white shadow-xl border-0 rounded-lg overflow-hidden">
+      <CardContent className="p-0">
+        <div className="bg-white border-b p-4">
+          <div className="flex space-x-4">
+            <button className="flex items-center space-x-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-full text-sm font-medium">
+              <Plane className="h-4 w-4" />
+              <span>Flights</span>
+            </button>
+            <button className="flex items-center space-x-2 px-4 py-2 text-gray-600 rounded-full text-sm font-medium hover:bg-gray-50">
+              <span>Hotels</span>
+            </button>
+            <button className="flex items-center space-x-2 px-4 py-2 text-gray-600 rounded-full text-sm font-medium hover:bg-gray-50">
+              <span>Car hire</span>
+            </button>
+          </div>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-4">
+            <div className="lg:col-span-2 grid grid-cols-2 border border-gray-200 rounded-lg overflow-hidden">
+              <div className="p-4 border-r border-gray-200">
+                <div className="text-xs text-gray-500 mb-1">From</div>
                 <Select
                   value={searchParams.from}
                   onValueChange={(value) => updateSearchParams("from", value)}
                 >
-                  <SelectTrigger className="pl-10">
+                  <SelectTrigger className="border-0 p-0 h-auto text-lg font-medium">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="LHR">London Heathrow (LHR)</SelectItem>
-                    <SelectItem value="LGW">London Gatwick (LGW)</SelectItem>
-                    <SelectItem value="STN">London Stansted (STN)</SelectItem>
-                    <SelectItem value="MAN">Manchester (MAN)</SelectItem>
-                    <SelectItem value="BHX">Birmingham (BHX)</SelectItem>
-                    <SelectItem value="EDI">Edinburgh (EDI)</SelectItem>
+                    <SelectItem value="LHR">London Heathrow</SelectItem>
+                    <SelectItem value="LGW">London Gatwick</SelectItem>
+                    <SelectItem value="STN">London Stansted</SelectItem>
+                    <SelectItem value="MAN">Manchester</SelectItem>
+                    <SelectItem value="BHX">Birmingham</SelectItem>
+                    <SelectItem value="EDI">Edinburgh</SelectItem>
                   </SelectContent>
                 </Select>
-                <PlaneTakeoff className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <div className="text-xs text-gray-400">{searchParams.from}</div>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="to">To</Label>
-              <div className="relative">
+              <div className="p-4 relative">
+                <div className="text-xs text-gray-500 mb-1">To</div>
                 <Select
                   value={searchParams.to}
                   onValueChange={(value) => updateSearchParams("to", value)}
                 >
-                  <SelectTrigger className="pl-10">
+                  <SelectTrigger className="border-0 p-0 h-auto text-lg font-medium">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="AMS">Amsterdam (AMS)</SelectItem>
-                    <SelectItem value="RTM">Rotterdam (RTM)</SelectItem>
-                    <SelectItem value="EIN">Eindhoven (EIN)</SelectItem>
+                    <SelectItem value="AMS">Amsterdam</SelectItem>
+                    <SelectItem value="RTM">Rotterdam</SelectItem>
+                    <SelectItem value="EIN">Eindhoven</SelectItem>
                   </SelectContent>
                 </Select>
-                <PlaneLanding className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <div className="text-xs text-gray-400">{searchParams.to}</div>
+                <button className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-white border border-gray-200 rounded-full p-2 hover:bg-gray-50">
+                  <ArrowLeftRight className="h-4 w-4 text-gray-400" />
+                </button>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="departure">Departure</Label>
+            <div className="border border-gray-200 rounded-lg p-4">
+              <div className="text-xs text-gray-500 mb-1">Depart</div>
               <Input
                 type="date"
                 value={searchParams.departure}
                 onChange={(e) => updateSearchParams("departure", e.target.value)}
-                className="w-full"
+                className="border-0 p-0 h-auto text-lg font-medium"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="return">Return</Label>
+            <div className="border border-gray-200 rounded-lg p-4">
+              <div className="text-xs text-gray-500 mb-1">Return</div>
               <Input
                 type="date"
                 value={searchParams.return}
                 onChange={(e) => updateSearchParams("return", e.target.value)}
-                className="w-full"
+                className="border-0 p-0 h-auto text-lg font-medium"
               />
+            </div>
+
+            <div className="border border-gray-200 rounded-lg p-4">
+              <div className="text-xs text-gray-500 mb-1">Passengers</div>
+              <Select
+                value={searchParams.passengers.toString()}
+                onValueChange={(value) => updateSearchParams("passengers", parseInt(value))}
+              >
+                <SelectTrigger className="border-0 p-0 h-auto text-lg font-medium">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 Adult</SelectItem>
+                  <SelectItem value="2">2 Adults</SelectItem>
+                  <SelectItem value="3">3 Adults</SelectItem>
+                  <SelectItem value="4">4 Adults</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="space-y-2">
-                <Label htmlFor="passengers">Passengers</Label>
-                <Select
-                  value={searchParams.passengers.toString()}
-                  onValueChange={(value) => updateSearchParams("passengers", parseInt(value))}
-                >
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1 Adult</SelectItem>
-                    <SelectItem value="2">2 Adults</SelectItem>
-                    <SelectItem value="3">3 Adults</SelectItem>
-                    <SelectItem value="4">4 Adults</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="class">Class</Label>
-                <Select
-                  value={searchParams.class}
-                  onValueChange={(value) => updateSearchParams("class", value)}
-                >
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="economy">Economy</SelectItem>
-                    <SelectItem value="premium">Premium Economy</SelectItem>
-                    <SelectItem value="business">Business</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+          <div className="flex justify-center">
             <Button
               type="submit"
-              className="bg-primary hover:bg-primary-dark text-white px-8 py-3"
+              className="bg-gradient-to-r from-blue-500 to-green-400 hover:from-blue-600 hover:to-green-500 text-white px-12 py-4 rounded-full text-lg font-semibold shadow-lg"
               disabled={isSearching}
             >
-              <Search className="w-4 h-4 mr-2" />
-              {isSearching ? "Searching..." : "Search Flights"}
+              {isSearching ? "Searching..." : "Search flights"}
             </Button>
           </div>
         </form>

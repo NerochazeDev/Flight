@@ -83,48 +83,60 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Header />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <ProgressSteps currentStep={currentStep} />
-        
-        {currentStep === "search" && (
-          <SearchForm 
-            searchParams={searchParams}
-            onSearch={handleSearch}
-            isSearching={isSearching}
-          />
-        )}
-        
-        {isSearching && <LoadingState />}
-        
-        {currentStep === "select" && (
-          <FlightResults 
-            flights={flightResults}
-            onFlightSelect={handleFlightSelect}
-            onBackToSearch={handleBackToSearch}
-          />
-        )}
-        
-        {currentStep === "passenger" && selectedFlight && (
-          <PassengerForm 
-            flight={selectedFlight}
-            passengers={searchParams.passengers}
-            onBookingComplete={handleBookingComplete}
-            onBack={handleBackToResults}
-          />
-        )}
-        
-        {currentStep === "confirmation" && booking && selectedFlight && (
-          <BookingConfirmation 
-            booking={booking}
-            flight={selectedFlight}
-          />
-        )}
-      </main>
+      {currentStep === "search" && (
+        <div className="bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 relative overflow-hidden">
+          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div className="text-center mb-12">
+              <h1 className="text-5xl font-bold text-white mb-4">
+                Millions of cheap flights. One simple search.
+              </h1>
+            </div>
+            <SearchForm 
+              searchParams={searchParams}
+              onSearch={handleSearch}
+              isSearching={isSearching}
+            />
+          </div>
+        </div>
+      )}
       
-      <Footer />
+      {currentStep !== "search" && (
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <ProgressSteps currentStep={currentStep} />
+          
+          {isSearching && <LoadingState />}
+          
+          {currentStep === "select" && (
+            <FlightResults 
+              flights={flightResults}
+              onFlightSelect={handleFlightSelect}
+              onBackToSearch={handleBackToSearch}
+            />
+          )}
+          
+          {currentStep === "passenger" && selectedFlight && (
+            <PassengerForm 
+              flight={selectedFlight}
+              passengers={searchParams.passengers}
+              onBookingComplete={handleBookingComplete}
+              onBack={handleBackToResults}
+            />
+          )}
+          
+          {currentStep === "confirmation" && booking && selectedFlight && (
+            <BookingConfirmation 
+              booking={booking}
+              flight={selectedFlight}
+            />
+          )}
+        </main>
+      )}
+      
+
     </div>
   );
 }

@@ -155,6 +155,9 @@ export class MemStorage implements IStorage {
       id,
       bookingReference,
       createdAt: new Date(),
+      passengers: insertBooking.passengers ?? 1,
+      status: insertBooking.status ?? "confirmed",
+      addOns: insertBooking.addOns ?? [],
     };
     
     this.bookings.set(bookingReference, booking);
@@ -171,6 +174,9 @@ export class MemStorage implements IStorage {
       ...insertSearchRequest,
       id,
       createdAt: new Date(),
+      returnDate: insertSearchRequest.returnDate ?? null,
+      passengers: insertSearchRequest.passengers ?? 1,
+      class: insertSearchRequest.class ?? "economy",
     };
     
     this.searchRequests.set(id, searchRequest);
