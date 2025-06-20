@@ -40,15 +40,15 @@ export default function SearchForm({ searchParams, onSearch, isSearching }: Sear
         </div>
         
         <form onSubmit={handleSubmit} className="p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-4">
-            <div className="lg:col-span-2 grid grid-cols-2 border border-gray-200 rounded-lg overflow-hidden">
-              <div className="p-4 border-r border-gray-200">
-                <div className="text-xs text-gray-500 mb-1">From</div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 mb-6">
+            <div className="lg:col-span-5 grid grid-cols-2 border border-gray-200 rounded-l-lg lg:rounded-r-none overflow-hidden">
+              <div className="p-4 border-r border-gray-200 min-h-[80px] flex flex-col justify-center">
+                <div className="text-xs text-gray-500 mb-2">From</div>
                 <Select
                   value={searchParams.from}
                   onValueChange={(value) => updateSearchParams("from", value)}
                 >
-                  <SelectTrigger className="border-0 p-0 h-auto text-lg font-medium">
+                  <SelectTrigger className="border-0 p-0 h-auto text-base font-medium">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -60,15 +60,15 @@ export default function SearchForm({ searchParams, onSearch, isSearching }: Sear
                     <SelectItem value="EDI">Edinburgh</SelectItem>
                   </SelectContent>
                 </Select>
-                <div className="text-xs text-gray-400">{searchParams.from}</div>
+                <div className="text-xs text-gray-400 mt-1">{searchParams.from}</div>
               </div>
-              <div className="p-4 relative">
-                <div className="text-xs text-gray-500 mb-1">To</div>
+              <div className="p-4 relative min-h-[80px] flex flex-col justify-center">
+                <div className="text-xs text-gray-500 mb-2">To</div>
                 <Select
                   value={searchParams.to}
                   onValueChange={(value) => updateSearchParams("to", value)}
                 >
-                  <SelectTrigger className="border-0 p-0 h-auto text-lg font-medium">
+                  <SelectTrigger className="border-0 p-0 h-auto text-base font-medium">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -77,40 +77,40 @@ export default function SearchForm({ searchParams, onSearch, isSearching }: Sear
                     <SelectItem value="EIN">Eindhoven</SelectItem>
                   </SelectContent>
                 </Select>
-                <div className="text-xs text-gray-400">{searchParams.to}</div>
-                <button className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-white border border-gray-200 rounded-full p-2 hover:bg-gray-50">
+                <div className="text-xs text-gray-400 mt-1">{searchParams.to}</div>
+                <button className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-white border border-gray-200 rounded-full p-2 hover:bg-gray-50 z-10">
                   <ArrowLeftRight className="h-4 w-4 text-gray-400" />
                 </button>
               </div>
             </div>
 
-            <div className="border border-gray-200 rounded-lg p-4">
-              <div className="text-xs text-gray-500 mb-1">Depart</div>
+            <div className="lg:col-span-2 border-t border-r border-b border-gray-200 lg:border-t lg:border-b p-4 min-h-[80px] flex flex-col justify-center">
+              <div className="text-xs text-gray-500 mb-2">Depart</div>
               <Input
                 type="date"
                 value={searchParams.departure}
                 onChange={(e) => updateSearchParams("departure", e.target.value)}
-                className="border-0 p-0 h-auto text-lg font-medium"
+                className="border-0 p-0 h-auto text-base font-medium"
               />
             </div>
 
-            <div className="border border-gray-200 rounded-lg p-4">
-              <div className="text-xs text-gray-500 mb-1">Return</div>
+            <div className="lg:col-span-2 border-t border-r border-b border-gray-200 lg:border-t lg:border-b p-4 min-h-[80px] flex flex-col justify-center">
+              <div className="text-xs text-gray-500 mb-2">Return</div>
               <Input
                 type="date"
                 value={searchParams.return}
                 onChange={(e) => updateSearchParams("return", e.target.value)}
-                className="border-0 p-0 h-auto text-lg font-medium"
+                className="border-0 p-0 h-auto text-base font-medium"
               />
             </div>
 
-            <div className="border border-gray-200 rounded-lg p-4">
-              <div className="text-xs text-gray-500 mb-1">Passengers</div>
+            <div className="lg:col-span-3 border border-gray-200 rounded-r-lg lg:rounded-l-none p-4 min-h-[80px] flex flex-col justify-center">
+              <div className="text-xs text-gray-500 mb-2">Passengers</div>
               <Select
                 value={searchParams.passengers.toString()}
                 onValueChange={(value) => updateSearchParams("passengers", parseInt(value))}
               >
-                <SelectTrigger className="border-0 p-0 h-auto text-lg font-medium">
+                <SelectTrigger className="border-0 p-0 h-auto text-base font-medium">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

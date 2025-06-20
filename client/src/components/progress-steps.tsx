@@ -24,42 +24,44 @@ export default function ProgressSteps({ currentStep }: ProgressStepsProps) {
   const currentStepIndex = getStepIndex(currentStep);
 
   return (
-    <div className="mb-8 bg-white border-b">
-      <div className="max-w-4xl mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          {steps.map((step, index) => (
-            <div key={step.key} className="flex items-center flex-1">
-              <div className="flex items-center">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    currentStepIndex > index
-                      ? "bg-green-500 text-white"
-                      : currentStepIndex === index
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 text-gray-500"
-                  }`}
-                >
-                  {currentStepIndex > index ? (
-                    <Check className="w-4 h-4" />
-                  ) : (
-                    index + 1
-                  )}
+    <div className="bg-white border-b border-gray-200 mb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex items-center justify-center">
+          <div className="flex items-center space-x-8 max-w-2xl w-full">
+            {steps.map((step, index) => (
+              <div key={step.key} className="flex items-center flex-1">
+                <div className="flex flex-col items-center">
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
+                      currentStepIndex > index
+                        ? "bg-green-500 text-white"
+                        : currentStepIndex === index
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-200 text-gray-500"
+                    }`}
+                  >
+                    {currentStepIndex > index ? (
+                      <Check className="w-5 h-5" />
+                    ) : (
+                      index + 1
+                    )}
+                  </div>
+                  <span
+                    className={`mt-2 text-xs font-medium text-center ${
+                      currentStepIndex >= index ? "text-gray-900" : "text-gray-500"
+                    }`}
+                  >
+                    {step.label}
+                  </span>
                 </div>
-                <span
-                  className={`ml-3 text-sm font-medium ${
-                    currentStepIndex >= index ? "text-gray-900" : "text-gray-500"
-                  }`}
-                >
-                  {step.label}
-                </span>
+                {index < steps.length - 1 && (
+                  <div className="flex-1 mx-4 mt-[-20px]">
+                    <div className={`h-px transition-colors ${currentStepIndex > index ? "bg-green-500" : "bg-gray-300"}`}></div>
+                  </div>
+                )}
               </div>
-              {index < steps.length - 1 && (
-                <div className="flex-1 mx-4">
-                  <div className={`h-px ${currentStepIndex > index ? "bg-green-500" : "bg-gray-200"}`}></div>
-                </div>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>

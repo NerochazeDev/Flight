@@ -33,56 +33,62 @@ export default function BookingConfirmation({ booking, flight }: BookingConfirma
   };
 
   return (
-    <Card className="shadow-lg">
-      <CardContent className="p-8 text-center">
-        <div className="w-16 h-16 bg-success text-white rounded-full flex items-center justify-center mx-auto mb-4">
-          <Check className="w-8 h-8" />
-        </div>
-        <h3 className="text-2xl font-bold text-gray-900 mb-2">Booking Confirmed!</h3>
-        <p className="text-gray-600 mb-6">Your flight has been successfully booked</p>
-        
-        <div className="bg-gray-50 rounded-lg p-6 mb-6 text-left">
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Booking Reference:</span>
-              <span className="font-medium">{booking.bookingReference}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Flight:</span>
-              <span className="font-medium">{flight.flightNumber}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Route:</span>
-              <span className="font-medium">
-                {getAirportName(flight.departureAirport)} ({flight.departureAirport}) → {getAirportName(flight.arrivalAirport)} ({flight.arrivalAirport})
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Departure:</span>
-              <span className="font-medium">{flight.departureTime}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Passenger:</span>
-              <span className="font-medium">{booking.passengerName}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Total Paid:</span>
-              <span className="font-bold text-primary">£{booking.totalPrice}</span>
+    <div className="max-w-4xl mx-auto">
+      <Card className="shadow-sm border border-gray-200 rounded-lg overflow-hidden">
+        <CardContent className="p-8 text-center">
+          <div className="w-20 h-20 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto mb-6">
+            <Check className="w-10 h-10" />
+          </div>
+          <h3 className="text-3xl font-bold text-gray-900 mb-3">Booking confirmed!</h3>
+          <p className="text-lg text-gray-600 mb-8">Your flight booking has been successfully confirmed</p>
+          
+          <div className="bg-blue-50 rounded-lg p-8 mb-8 text-left">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <span className="text-sm text-gray-500 block">Booking reference</span>
+                  <span className="text-lg font-bold text-gray-900">{booking.bookingReference}</span>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-500 block">Flight</span>
+                  <span className="text-base font-medium text-gray-900">{flight.airline} {flight.flightNumber}</span>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-500 block">Route</span>
+                  <span className="text-base font-medium text-gray-900">
+                    {getAirportName(flight.departureAirport)} → {getAirportName(flight.arrivalAirport)}
+                  </span>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <span className="text-sm text-gray-500 block">Departure time</span>
+                  <span className="text-base font-medium text-gray-900">{flight.departureTime}</span>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-500 block">Passenger</span>
+                  <span className="text-base font-medium text-gray-900">{booking.passengerName}</span>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-500 block">Total paid</span>
+                  <span className="text-xl font-bold text-blue-600">£{booking.totalPrice}</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button className="bg-primary hover:bg-primary-dark text-white">
-            <Download className="w-4 h-4 mr-2" />
-            Download Tickets
-          </Button>
-          <Button variant="outline">
-            <Mail className="w-4 h-4 mr-2" />
-            Email Confirmation
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button className="bg-gradient-to-r from-blue-500 to-green-400 hover:from-blue-600 hover:to-green-500 text-white px-8 py-3 rounded-full font-semibold shadow-md">
+              <Download className="w-5 h-5 mr-2" />
+              Download boarding pass
+            </Button>
+            <Button variant="outline" className="px-8 py-3 rounded-full font-semibold border-gray-300">
+              <Mail className="w-5 h-5 mr-2" />
+              Email confirmation
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

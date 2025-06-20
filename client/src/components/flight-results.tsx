@@ -73,67 +73,82 @@ export default function FlightResults({ flights, onFlightSelect, onBackToSearch 
       </div>
 
       {/* Flight Cards */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {flights.map((flight) => (
-          <Card key={flight.id} className="border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                {/* Airline Logo & Times */}
-                <div className="flex items-center space-x-6">
-                  <div className={`w-8 h-8 ${getAirlineLogo(flight.airlineCode)} rounded flex items-center justify-center`}>
-                    <span className="text-white font-bold text-xs">{flight.airlineCode}</span>
-                  </div>
-                  
-                  <div className="flex items-center space-x-8">
-                    <div className="text-center">
-                      <div className="text-lg font-semibold text-gray-900">{flight.departureTime}</div>
-                      <div className="text-sm text-gray-500">{flight.departureAirport}</div>
-                    </div>
-                    
-                    <div className="flex flex-col items-center space-y-1">
-                      <div className="text-xs text-gray-500">{flight.duration}</div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-16 h-px bg-gray-300"></div>
-                        <Plane className="w-4 h-4 text-gray-400" />
-                        <div className="w-16 h-px bg-gray-300"></div>
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {(flight.stops || 0) === 0 ? "Direct" : `${flight.stops} stop${(flight.stops || 0) > 1 ? 's' : ''}`}
+          <Card key={flight.id} className="border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all cursor-pointer rounded-lg overflow-hidden">
+            <CardContent className="p-0">
+              <div className="p-6">
+                <div className="flex items-center justify-between">
+                  {/* Left side - Flight details */}
+                  <div className="flex items-center space-x-6 flex-1">
+                    {/* Airline logo */}
+                    <div className="flex-shrink-0">
+                      <div className={`w-10 h-10 ${getAirlineLogo(flight.airlineCode)} rounded-lg flex items-center justify-center shadow-sm`}>
+                        <span className="text-white font-bold text-sm">{flight.airlineCode}</span>
                       </div>
                     </div>
                     
-                    <div className="text-center">
-                      <div className="text-lg font-semibold text-gray-900">{flight.arrivalTime}</div>
-                      <div className="text-sm text-gray-500">{flight.arrivalAirport}</div>
+                    {/* Flight times and route */}
+                    <div className="flex items-center space-x-12 flex-1">
+                      {/* Departure */}
+                      <div className="text-left min-w-[100px]">
+                        <div className="text-2xl font-bold text-gray-900">{flight.departureTime}</div>
+                        <div className="text-sm text-gray-600 font-medium">{flight.departureAirport}</div>
+                      </div>
+                      
+                      {/* Flight duration and route */}
+                      <div className="flex flex-col items-center space-y-2 flex-1 min-w-[120px]">
+                        <div className="text-xs text-gray-500 font-medium">{flight.duration}</div>
+                        <div className="flex items-center space-x-3 w-full">
+                          <div className="flex-1 h-px bg-gray-300"></div>
+                          <Plane className="w-4 h-4 text-gray-400 transform rotate-90" />
+                          <div className="flex-1 h-px bg-gray-300"></div>
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {(flight.stops || 0) === 0 ? "Direct" : `${flight.stops} stop${(flight.stops || 0) > 1 ? 's' : ''}`}
+                        </div>
+                      </div>
+                      
+                      {/* Arrival */}
+                      <div className="text-right min-w-[100px]">
+                        <div className="text-2xl font-bold text-gray-900">{flight.arrivalTime}</div>
+                        <div className="text-sm text-gray-600 font-medium">{flight.arrivalAirport}</div>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Price & Select */}
-                <div className="flex items-center space-x-4">
-                  <div className="text-right">
-                    <div className="text-xl font-bold text-gray-900">£{flight.price}</div>
-                    <div className="text-xs text-gray-500">per person</div>
-                    {parseFloat(flight.price) < 100 && (
-                      <Badge className="bg-green-100 text-green-800 text-xs mt-1">Great price</Badge>
-                    )}
+                  {/* Right side - Price and select button */}
+                  <div className="flex items-center space-x-6 flex-shrink-0 ml-8">
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-gray-900">£{flight.price}</div>
+                      <div className="text-sm text-gray-500">per person</div>
+                      {parseFloat(flight.price) < 100 && (
+                        <div className="inline-block bg-green-50 text-green-700 text-xs px-2 py-1 rounded-full mt-1 font-medium">
+                          Great price
+                        </div>
+                      )}
+                    </div>
+                    <Button
+                      onClick={() => onFlightSelect(flight)}
+                      className="bg-gradient-to-r from-blue-500 to-green-400 hover:from-blue-600 hover:to-green-500 text-white px-8 py-3 rounded-full font-semibold shadow-md hover:shadow-lg transition-all"
+                    >
+                      Select
+                    </Button>
                   </div>
-                  <Button
-                    onClick={() => onFlightSelect(flight)}
-                    className="bg-gradient-to-r from-blue-500 to-green-400 hover:from-blue-600 hover:to-green-500 text-white px-6 py-2 rounded-full font-medium"
-                  >
-                    Select
-                  </Button>
                 </div>
               </div>
 
-              {/* Airline name and details */}
-              <div className="mt-3 pt-3 border-t border-gray-100">
-                <div className="flex items-center justify-between text-sm text-gray-600">
-                  <span>{flight.airline} • {flight.flightNumber}</span>
+              {/* Bottom section with airline details */}
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
-                    {flight.amenities?.slice(0, 2).map((amenity, index) => (
-                      <span key={index} className="text-xs">{amenity}</span>
+                    <span className="text-sm text-gray-700 font-medium">{flight.airline}</span>
+                    <span className="text-sm text-gray-500">•</span>
+                    <span className="text-sm text-gray-500">{flight.flightNumber}</span>
+                  </div>
+                  <div className="flex items-center space-x-6">
+                    {flight.amenities?.slice(0, 3).map((amenity, index) => (
+                      <span key={index} className="text-xs text-gray-500">{amenity}</span>
                     ))}
                   </div>
                 </div>
