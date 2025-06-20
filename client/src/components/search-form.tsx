@@ -58,6 +58,12 @@ export default function SearchForm({ searchParams, onSearch, isSearching }: Sear
                     <SelectItem value="MAN">Manchester</SelectItem>
                     <SelectItem value="BHX">Birmingham</SelectItem>
                     <SelectItem value="EDI">Edinburgh</SelectItem>
+                    <SelectItem value="GLA">Glasgow</SelectItem>
+                    <SelectItem value="LTN">London Luton</SelectItem>
+                    <SelectItem value="BRS">Bristol</SelectItem>
+                    <SelectItem value="LPL">Liverpool</SelectItem>
+                    <SelectItem value="NCL">Newcastle</SelectItem>
+                    <SelectItem value="LBA">Leeds Bradford</SelectItem>
                   </SelectContent>
                 </Select>
                 <div className="text-xs text-gray-400 mt-1">{searchParams.from}</div>
@@ -75,6 +81,28 @@ export default function SearchForm({ searchParams, onSearch, isSearching }: Sear
                     <SelectItem value="AMS">Amsterdam</SelectItem>
                     <SelectItem value="RTM">Rotterdam</SelectItem>
                     <SelectItem value="EIN">Eindhoven</SelectItem>
+                    <SelectItem value="CDG">Paris Charles de Gaulle</SelectItem>
+                    <SelectItem value="ORY">Paris Orly</SelectItem>
+                    <SelectItem value="FRA">Frankfurt</SelectItem>
+                    <SelectItem value="MUC">Munich</SelectItem>
+                    <SelectItem value="BER">Berlin</SelectItem>
+                    <SelectItem value="FCO">Rome Fiumicino</SelectItem>
+                    <SelectItem value="BCN">Barcelona</SelectItem>
+                    <SelectItem value="MAD">Madrid</SelectItem>
+                    <SelectItem value="LIS">Lisbon</SelectItem>
+                    <SelectItem value="VIE">Vienna</SelectItem>
+                    <SelectItem value="ZUR">Zurich</SelectItem>
+                    <SelectItem value="CPH">Copenhagen</SelectItem>
+                    <SelectItem value="ARN">Stockholm</SelectItem>
+                    <SelectItem value="OSL">Oslo</SelectItem>
+                    <SelectItem value="HEL">Helsinki</SelectItem>
+                    <SelectItem value="WAW">Warsaw</SelectItem>
+                    <SelectItem value="PRG">Prague</SelectItem>
+                    <SelectItem value="BUD">Budapest</SelectItem>
+                    <SelectItem value="ATH">Athens</SelectItem>
+                    <SelectItem value="IST">Istanbul</SelectItem>
+                    <SelectItem value="DUB">Dublin</SelectItem>
+                    <SelectItem value="BRU">Brussels</SelectItem>
                   </SelectContent>
                 </Select>
                 <div className="text-xs text-gray-400 mt-1">{searchParams.to}</div>

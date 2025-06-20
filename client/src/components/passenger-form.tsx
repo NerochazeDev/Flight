@@ -11,7 +11,7 @@ import type { Flight, Booking } from "@shared/schema";
 interface PassengerFormProps {
   flight: Flight;
   passengers: number;
-  onBookingComplete: (booking: Booking) => void;
+  onBookingComplete: (totalAmount: string) => void;
   onBack: () => void;
 }
 
@@ -84,13 +84,8 @@ export default function PassengerForm({ flight, passengers, onBookingComplete, o
         throw new Error("Failed to create booking");
       }
 
-      const booking = await response.json();
-      onBookingComplete(booking);
-      
-      toast({
-        title: "Booking Confirmed!",
-        description: `Your booking reference is ${booking.bookingReference}`,
-      });
+      // Pass total amount to proceed to payment
+      onBookingComplete(calculateTotal());
     } catch (error) {
       console.error("Booking error:", error);
       toast({
