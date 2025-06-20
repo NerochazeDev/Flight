@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,6 +7,13 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ArrowLeft, CreditCard, Gift } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Flight, Booking } from "@shared/schema";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface PaymentFormProps {
   flight: Flight;
@@ -35,13 +41,33 @@ export default function PaymentForm({
     number: "",
     expiry: "",
     cvv: "",
-    name: "",
+    name: ""
   });
   const [giftCardCode, setGiftCardCode] = useState("");
+  const [selectedGiftCard, setSelectedGiftCard] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
+
+    if (paymentMethod === "gift") {
+      if (!selectedGiftCard) {
+        toast({
+          title: "Gift card type required",
+          description: "Please select a gift card type",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!giftCardCode.trim()) {
+        toast({
+          title: "Gift card code required", 
+          description: "Please enter a gift card code",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
 
     try {
       const bookingData = {
@@ -70,7 +96,7 @@ export default function PaymentForm({
 
       const booking = await response.json();
       onPaymentComplete(booking);
-      
+
       toast({
         title: "Payment Successful!",
         description: `Your booking reference is ${booking.bookingReference}`,
@@ -95,7 +121,7 @@ export default function PaymentForm({
     <Card className="shadow-lg mb-8">
       <CardContent className="p-6">
         <h3 className="text-xl font-bold text-gray-900 mb-6">Payment Details</h3>
-        
+
         <div className="bg-gray-50 rounded-lg p-4 mb-6">
           <div className="flex justify-between items-center">
             <span className="text-lg font-semibold">Total Amount:</span>
@@ -176,6 +202,22 @@ export default function PaymentForm({
 
           {paymentMethod === "gift" && (
             <div className="space-y-4">
+              <div>
+                <Label htmlFor="giftcard-type">Gift Card Type</Label>
+                <Select value={selectedGiftCard} onValueChange={setSelectedGiftCard}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select gift card type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="amazon">Amazon Gift Card</SelectItem>
+                    <SelectItem value="visa">Visa Gift Card</SelectItem>
+                    <SelectItem value="mastercard">Mastercard Gift Card</SelectItem>
+                    <SelectItem value="airline">Airline Gift Card</SelectItem>
+                    <SelectItem value="travel">Travel Gift Card</SelectItem>
+                    <SelectItem value="generic">Generic Gift Card</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="giftCode">Gift Card Code *</Label>
                 <Input

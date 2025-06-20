@@ -4,11 +4,11 @@ export interface IStorage {
   // Flight operations
   searchFlights(from: string, to: string, date: string): Promise<Flight[]>;
   getFlightById(id: number): Promise<Flight | undefined>;
-  
+
   // Booking operations
   createBooking(booking: InsertBooking): Promise<Booking>;
   getBookingByReference(reference: string): Promise<Booking | undefined>;
-  
+
   // Search request operations
   createSearchRequest(searchRequest: InsertSearchRequest): Promise<SearchRequest>;
 }
@@ -28,7 +28,7 @@ export class MemStorage implements IStorage {
     this.flightCurrentId = 1;
     this.bookingCurrentId = 1;
     this.searchCurrentId = 1;
-    
+
     // Initialize with mock flight data
     this.initializeMockFlights();
   }
@@ -44,7 +44,7 @@ export class MemStorage implements IStorage {
         departureTime: "09:15",
         arrivalTime: "11:40",
         duration: "1h 25m",
-        price: "189.00",
+        price: "945.00",
         aircraft: "Boeing 737",
         stops: 0,
         amenities: ["WiFi", "Meal", "Checked bag"],
@@ -59,7 +59,7 @@ export class MemStorage implements IStorage {
         departureTime: "14:30",
         arrivalTime: "17:00",
         duration: "1h 30m",
-        price: "215.00",
+        price: "1125.00",
         aircraft: "Airbus A320",
         stops: 0,
         amenities: ["WiFi", "Snack", "Checked bag"],
@@ -74,7 +74,7 @@ export class MemStorage implements IStorage {
         departureTime: "06:45",
         arrivalTime: "09:25",
         duration: "1h 40m",
-        price: "89.00",
+        price: "925.00",
         aircraft: "Boeing 737",
         stops: 0,
         amenities: ["Food for purchase"],
@@ -89,7 +89,7 @@ export class MemStorage implements IStorage {
         departureTime: "16:20",
         arrivalTime: "18:45",
         duration: "1h 25m",
-        price: "125.00",
+        price: "1045.00",
         aircraft: "Airbus A319",
         stops: 0,
         amenities: ["WiFi", "Food for purchase"],
@@ -104,7 +104,7 @@ export class MemStorage implements IStorage {
         departureTime: "11:30",
         arrivalTime: "14:10",
         duration: "1h 40m",
-        price: "199.00",
+        price: "1275.00",
         aircraft: "Boeing 737",
         stops: 0,
         amenities: ["WiFi", "Meal", "Checked bag"],
@@ -119,11 +119,41 @@ export class MemStorage implements IStorage {
         departureTime: "13:15",
         arrivalTime: "15:55",
         duration: "1h 40m",
-        price: "179.00",
+        price: "1450.00",
         aircraft: "Airbus A320",
         stops: 0,
         amenities: ["WiFi", "Snack", "Checked bag"],
         availableSeats: 130,
+      },
+      {
+        flightNumber: "KL2334",
+        airline: "KLM Royal Dutch Airlines",
+        airlineCode: "KL",
+        departureAirport: "LHR",
+        arrivalAirport: "AMS",
+        departureTime: "12:30",
+        arrivalTime: "17:20",
+        duration: "2h 50m",
+        price: "965.00",
+        aircraft: "Boeing 777",
+        stops: 1,
+        amenities: ["WiFi", "Meal", "Entertainment"],
+        availableSeats: 240,
+      },
+      {
+        flightNumber: "FR3421",
+        airline: "Ryanair",
+        airlineCode: "FR",
+        departureAirport: "LHR",
+        arrivalAirport: "AMS",
+        departureTime: "21:15",
+        arrivalTime: "00:30",
+        duration: "1h 15m",
+        price: "905.00",
+        aircraft: "Boeing 737",
+        stops: 0,
+        amenities: ["WiFi"],
+        availableSeats: 180,
       },
     ];
 
@@ -137,7 +167,7 @@ export class MemStorage implements IStorage {
     const results = Array.from(this.flights.values()).filter(flight => 
       flight.departureAirport === from && flight.arrivalAirport === to
     );
-    
+
     // Sort by price by default
     return results.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
   }
@@ -149,7 +179,7 @@ export class MemStorage implements IStorage {
   async createBooking(insertBooking: InsertBooking): Promise<Booking> {
     const id = this.bookingCurrentId++;
     const bookingReference = `FH-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
-    
+
     const booking: Booking = {
       ...insertBooking,
       id,
@@ -159,7 +189,7 @@ export class MemStorage implements IStorage {
       status: insertBooking.status ?? "confirmed",
       addOns: insertBooking.addOns ?? [],
     };
-    
+
     this.bookings.set(bookingReference, booking);
     return booking;
   }
@@ -178,7 +208,7 @@ export class MemStorage implements IStorage {
       passengers: insertSearchRequest.passengers ?? 1,
       class: insertSearchRequest.class ?? "economy",
     };
-    
+
     this.searchRequests.set(id, searchRequest);
     return searchRequest;
   }
