@@ -38,7 +38,7 @@ export default function SearchForm({ searchParams, onSearch, isSearching }: Sear
             </button>
           </div>
         </div>
-
+        
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-4">
             <div className="lg:col-span-2 grid grid-cols-2 border border-gray-200 rounded-lg overflow-hidden">
@@ -52,16 +52,12 @@ export default function SearchForm({ searchParams, onSearch, isSearching }: Sear
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="LHR">🇬🇧 London Heathrow (LHR)</SelectItem>
-                    <SelectItem value="LGW">🇬🇧 London Gatwick (LGW)</SelectItem>
-                    <SelectItem value="STN">🇬🇧 London Stansted (STN)</SelectItem>
-                    <SelectItem value="MAN">🇬🇧 Manchester (MAN)</SelectItem>
-                    <SelectItem value="BHX">🇬🇧 Birmingham (BHX)</SelectItem>
-                    <SelectItem value="EDI">🇬🇧 Edinburgh (EDI)</SelectItem>
-                    <SelectItem value="DUB">🇮🇪 Dublin (DUB)</SelectItem>
-                    <SelectItem value="CDG">🇫🇷 Paris Charles de Gaulle (CDG)</SelectItem>
-                    <SelectItem value="FRA">🇩🇪 Frankfurt (FRA)</SelectItem>
-                    <SelectItem value="AMS">🇳🇱 Amsterdam (AMS)</SelectItem>
+                    <SelectItem value="LHR">London Heathrow</SelectItem>
+                    <SelectItem value="LGW">London Gatwick</SelectItem>
+                    <SelectItem value="STN">London Stansted</SelectItem>
+                    <SelectItem value="MAN">Manchester</SelectItem>
+                    <SelectItem value="BHX">Birmingham</SelectItem>
+                    <SelectItem value="EDI">Edinburgh</SelectItem>
                   </SelectContent>
                 </Select>
                 <div className="text-xs text-gray-400">{searchParams.from}</div>
@@ -76,16 +72,9 @@ export default function SearchForm({ searchParams, onSearch, isSearching }: Sear
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="AMS">🇳🇱 Amsterdam (AMS)</SelectItem>
-                    <SelectItem value="CDG">🇫🇷 Paris Charles de Gaulle (CDG)</SelectItem>
-                    <SelectItem value="JFK">🇺🇸 New York JFK (JFK)</SelectItem>
-                    <SelectItem value="DXB">🇦🇪 Dubai (DXB)</SelectItem>
-                    <SelectItem value="BCN">🇪🇸 Barcelona (BCN)</SelectItem>
-                    <SelectItem value="FCO">🇮🇹 Rome Fiumicino (FCO)</SelectItem>
-                    <SelectItem value="FRA">🇩🇪 Frankfurt (FRA)</SelectItem>
-                    <SelectItem value="NRT">🇯🇵 Tokyo Narita (NRT)</SelectItem>
-                    <SelectItem value="SYD">🇦🇺 Sydney (SYD)</SelectItem>
-                    <SelectItem value="LAX">🇺🇸 Los Angeles (LAX)</SelectItem>
+                    <SelectItem value="AMS">Amsterdam</SelectItem>
+                    <SelectItem value="RTM">Rotterdam</SelectItem>
+                    <SelectItem value="EIN">Eindhoven</SelectItem>
                   </SelectContent>
                 </Select>
                 <div className="text-xs text-gray-400">{searchParams.to}</div>
@@ -129,24 +118,6 @@ export default function SearchForm({ searchParams, onSearch, isSearching }: Sear
                   <SelectItem value="2">2 Adults</SelectItem>
                   <SelectItem value="3">3 Adults</SelectItem>
                   <SelectItem value="4">4 Adults</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-             <div className="border border-gray-200 rounded-lg p-4">
-              <div className="text-xs text-gray-500 mb-1">Class</div>
-              <Select
-                value={searchParams.class}
-                onValueChange={(value) => updateSearchParams("class", value)}
-              >
-                <SelectTrigger className="border-0 p-0 h-auto text-lg font-medium">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="economy">✈️ Economy Class</SelectItem>
-                  <SelectItem value="premium">🛋️ Premium Economy</SelectItem>
-                  <SelectItem value="business">💼 Business Class</SelectItem>
-                  <SelectItem value="first">👑 First Class</SelectItem>
-                  <SelectItem value="private">🛩️ Private Jet</SelectItem>
                 </SelectContent>
               </Select>
             </div>

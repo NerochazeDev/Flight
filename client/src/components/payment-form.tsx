@@ -209,17 +209,12 @@ export default function PaymentForm({
                     <SelectValue placeholder="Select gift card type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="apple">Apple Gift Card</SelectItem>
-                    <SelectItem value="google">Google Play Gift Card</SelectItem>
                     <SelectItem value="amazon">Amazon Gift Card</SelectItem>
-                    <SelectItem value="netflix">Netflix Gift Card</SelectItem>
-                    <SelectItem value="spotify">Spotify Gift Card</SelectItem>
-                    <SelectItem value="steam">Steam Gift Card</SelectItem>
-                    <SelectItem value="xbox">Xbox Gift Card</SelectItem>
-                    <SelectItem value="playstation">PlayStation Gift Card</SelectItem>
                     <SelectItem value="visa">Visa Gift Card</SelectItem>
                     <SelectItem value="mastercard">Mastercard Gift Card</SelectItem>
-                    <SelectItem value="american-express">American Express Gift Card</SelectItem>
+                    <SelectItem value="airline">Airline Gift Card</SelectItem>
+                    <SelectItem value="travel">Travel Gift Card</SelectItem>
+                    <SelectItem value="generic">Generic Gift Card</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
