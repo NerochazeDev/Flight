@@ -122,11 +122,6 @@ export default function FlightResults({ flights, onFlightSelect, onBackToSearch 
                     <div className="text-right">
                       <div className="text-2xl font-bold text-gray-900">£{flight.price}</div>
                       <div className="text-sm text-gray-500">per person</div>
-                      {parseFloat(flight.price) < 100 && (
-                        <div className="inline-block bg-green-50 text-green-700 text-xs px-2 py-1 rounded-full mt-1 font-medium">
-                          Great price
-                        </div>
-                      )}
                     </div>
                     <Button
                       onClick={() => onFlightSelect(flight)}
