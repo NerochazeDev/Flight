@@ -24,9 +24,45 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   async searchFlights(from: string, to: string, date: string): Promise<Flight[]> {
-    // For now, use seed data - in production this would query the database
-    const tempStorage = new MemStorage();
-    return tempStorage.searchFlights(from, to, date);
+    // Query database with dynamic date filtering
+    const allFlights = await db.select().from(flights);
+    
+    // Filter flights based on route and update departure times to match search date
+    const filteredFlights = allFlights
+      .filter(flight => {
+        const matchesRoute = (
+          (flight.departureAirport.includes(from.toUpperCase()) || 
+           flight.departureAirport.toLowerCase().includes(from.toLowerCase())) &&
+          (flight.arrivalAirport.includes(to.toUpperCase()) || 
+           flight.arrivalAirport.toLowerCase().includes(to.toLowerCase()))
+        );
+        return matchesRoute;
+      })
+      .map(flight => {
+        // Update departure time to match search date
+        const searchDate = new Date(date);
+        const [hours, minutes] = flight.departureTime.split(':');
+        const departureDateTime = new Date(searchDate);
+        departureDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        
+        // Calculate arrival time
+        const durationMatch = flight.duration.match(/(\d+)h\s*(\d+)?m?/);
+        const durationHours = parseInt(durationMatch?.[1] || '1');
+        const durationMinutes = parseInt(durationMatch?.[2] || '0');
+        
+        const arrivalDateTime = new Date(departureDateTime);
+        arrivalDateTime.setHours(arrivalDateTime.getHours() + durationHours);
+        arrivalDateTime.setMinutes(arrivalDateTime.getMinutes() + durationMinutes);
+        
+        return {
+          ...flight,
+          departureTime: departureDateTime.toISOString(),
+          arrivalTime: arrivalDateTime.toISOString(),
+          price: (Math.random() * 200 + 150).toFixed(2) // £150-350 for more realistic pricing
+        };
+      });
+    
+    return filteredFlights;
   }
 
   async getFlightById(id: number): Promise<Flight | undefined> {

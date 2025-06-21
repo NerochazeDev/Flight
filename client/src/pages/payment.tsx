@@ -147,9 +147,9 @@ export default function Payment() {
         description: `Your booking ${booking.booking.bookingReference} has been confirmed.`,
       });
 
-      // Redirect back to pending page after successful payment
+      // Redirect to booking confirmation page with ticket
       setTimeout(() => {
-        window.location.href = '/pending';
+        window.location.href = `/booking-confirmation/${booking.booking.bookingReference}`;
       }, 2000);
     } catch (error) {
       console.error("Error processing payment:", error);

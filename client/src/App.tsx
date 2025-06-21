@@ -9,6 +9,7 @@ import CompletePayment from "@/pages/complete-payment";
 import EmailPreview from "@/pages/email-preview";
 import PendingTickets from "@/pages/pending";
 import Payment from "@/pages/payment";
+import BookingConfirmation from "@/pages/booking-confirmation";
 
 function Router() {
   return (
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/pending" component={PendingTickets} />
       <Route path="/payment/:reference" component={Payment} />
       <Route path="/complete-payment/:reference" component={CompletePayment} />
+      <Route path="/booking-confirmation/:reference" component={BookingConfirmation} />
       <Route path="/email-preview/:reference" component={EmailPreview} />
       <Route component={NotFound} />
     </Switch>
