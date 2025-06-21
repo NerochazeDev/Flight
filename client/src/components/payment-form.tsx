@@ -145,43 +145,62 @@ export default function PaymentForm({
     setIsProcessing(true);
 
     try {
-      const bookingData = {
+      // Create expiration date (24 hours from now)
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 24);
+
+      const pendingPaymentData = {
         flightId: flight.id,
         passengerName: `${passengerDetails.firstName} ${passengerDetails.lastName}`,
         passengerEmail: passengerDetails.email,
         passengerPhone: passengerDetails.phone,
+        passengerDetails: JSON.stringify(passengerDetails),
         passengers,
         totalPrice: totalAmount,
         addOns,
-        status: "pending",
-        paymentMethod: "Pending Payment",
+        expiresAt: expiresAt.toISOString(),
       };
 
-      const response = await fetch("/api/bookings", {
+      const response = await fetch("/api/pending-payments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(bookingData),
+        body: JSON.stringify(pendingPaymentData),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create booking");
+        throw new Error("Failed to create pending payment");
       }
 
-      const booking = await response.json();
+      const pendingPayment = await response.json();
+      
+      // Convert pending payment to booking format for confirmation screen
+      const booking = {
+        id: pendingPayment.id,
+        bookingReference: pendingPayment.ticketReference,
+        flightId: pendingPayment.flightId,
+        passengerName: pendingPayment.passengerName,
+        passengerEmail: pendingPayment.passengerEmail,
+        passengerPhone: pendingPayment.passengerPhone,
+        passengers: pendingPayment.passengers,
+        totalPrice: pendingPayment.totalPrice,
+        addOns: pendingPayment.addOns,
+        status: "pending",
+        createdAt: pendingPayment.createdAt,
+      };
+
       onPaymentComplete(booking);
 
       toast({
-        title: "Booking Reserved",
-        description: `Reference: ${booking.bookingReference}. Complete payment within 24 hours.`,
-        icon: <AlertTriangle className="h-4 w-4" />,
+        title: "Ticket Saved",
+        description: `Reference: ${pendingPayment.ticketReference}. Complete payment within 24 hours.`,
       });
     } catch (error) {
-      console.error("Booking error:", error);
+      console.error("Save ticket error:", error);
       toast({
-        title: "Booking Failed",
-        description: "There was an error creating your booking. Please try again.",
+        title: "Save Failed",
+        description: "There was an error saving your ticket. Please try again.",
         variant: "destructive",
       });
     } finally {

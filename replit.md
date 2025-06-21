@@ -103,6 +103,11 @@ This is a full-stack flight booking application built with React frontend and Ex
 
 Changelog:
 - June 21, 2025. Initial setup
+- June 21, 2025. Added database integration with PostgreSQL for persistent storage
+- June 21, 2025. Implemented pending payment system with ticket management
+- June 21, 2025. Added professional email notifications for payment reminders
+- June 21, 2025. Implemented ticket download functionality
+- June 21, 2025. Enhanced booking confirmation with realistic airline ticket design
 
 ## User Preferences
 

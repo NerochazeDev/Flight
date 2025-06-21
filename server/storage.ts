@@ -1,5 +1,6 @@
-
-import { flights, bookings, searchRequests, type Flight, type Booking, type SearchRequest, type InsertFlight, type InsertBooking, type InsertSearchRequest } from "@shared/schema";
+import { flights, bookings, searchRequests, pendingPayments, type Flight, type Booking, type SearchRequest, type PendingPayment, type InsertFlight, type InsertBooking, type InsertSearchRequest, type InsertPendingPayment } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // Flight operations
@@ -12,23 +13,120 @@ export interface IStorage {
 
   // Search request operations
   createSearchRequest(searchRequest: InsertSearchRequest): Promise<SearchRequest>;
+
+  // Pending payment operations
+  createPendingPayment(pendingPayment: InsertPendingPayment): Promise<PendingPayment>;
+  getPendingPaymentByReference(reference: string): Promise<PendingPayment | undefined>;
+  updatePendingPaymentStatus(reference: string, status: string): Promise<void>;
+  cleanupExpiredPayments(): Promise<void>;
+}
+
+export class DatabaseStorage implements IStorage {
+  async searchFlights(from: string, to: string, date: string): Promise<Flight[]> {
+    // For now, use seed data - in production this would query the database
+    const tempStorage = new MemStorage();
+    return tempStorage.searchFlights(from, to, date);
+  }
+
+  async getFlightById(id: number): Promise<Flight | undefined> {
+    const tempStorage = new MemStorage();
+    return tempStorage.getFlightById(id);
+  }
+
+  async createBooking(insertBooking: InsertBooking): Promise<Booking> {
+    const bookingReference = this.generateBookingReference();
+    const [booking] = await db
+      .insert(bookings)
+      .values({
+        ...insertBooking,
+        bookingReference,
+      })
+      .returning();
+    return booking;
+  }
+
+  async getBookingByReference(reference: string): Promise<Booking | undefined> {
+    const [booking] = await db.select().from(bookings).where(eq(bookings.bookingReference, reference));
+    return booking || undefined;
+  }
+
+  async createSearchRequest(insertSearchRequest: InsertSearchRequest): Promise<SearchRequest> {
+    const [searchRequest] = await db
+      .insert(searchRequests)
+      .values(insertSearchRequest)
+      .returning();
+    return searchRequest;
+  }
+
+  async createPendingPayment(insertPendingPayment: InsertPendingPayment): Promise<PendingPayment> {
+    const ticketReference = this.generateTicketReference();
+    const [pendingPayment] = await db
+      .insert(pendingPayments)
+      .values({
+        ...insertPendingPayment,
+        ticketReference,
+      })
+      .returning();
+    return pendingPayment;
+  }
+
+  async getPendingPaymentByReference(reference: string): Promise<PendingPayment | undefined> {
+    const [pendingPayment] = await db.select().from(pendingPayments).where(eq(pendingPayments.ticketReference, reference));
+    return pendingPayment || undefined;
+  }
+
+  async updatePendingPaymentStatus(reference: string, status: string): Promise<void> {
+    await db
+      .update(pendingPayments)
+      .set({ status })
+      .where(eq(pendingPayments.ticketReference, reference));
+  }
+
+  async cleanupExpiredPayments(): Promise<void> {
+    await db
+      .update(pendingPayments)
+      .set({ status: 'expired' })
+      .where(eq(pendingPayments.status, 'pending'));
+  }
+
+  private generateBookingReference(): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 6; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
+  private generateTicketReference(): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = 'TKT';
+    for (let i = 0; i < 6; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
 }
 
 export class MemStorage implements IStorage {
   private flights: Map<number, Flight>;
   private bookings: Map<string, Booking>;
   private searchRequests: Map<number, SearchRequest>;
+  private pendingPaymentsMap: Map<string, PendingPayment>;
   private flightCurrentId: number;
   private bookingCurrentId: number;
   private searchCurrentId: number;
+  private pendingPaymentId: number;
 
   constructor() {
     this.flights = new Map();
     this.bookings = new Map();
     this.searchRequests = new Map();
+    this.pendingPaymentsMap = new Map();
     this.flightCurrentId = 1;
     this.bookingCurrentId = 1;
     this.searchCurrentId = 1;
+    this.pendingPaymentId = 1;
 
     // Initialize with realistic flight data
     this.initializeRealisticFlights();
@@ -46,237 +144,108 @@ export class MemStorage implements IStorage {
         departureTime: "08:25",
         arrivalTime: "10:50",
         duration: "1h 25m",
-        price: "1245.00",
+        price: "124.50",
         aircraft: "Boeing 737-800",
         stops: 0,
-        amenities: ["WiFi", "Premium Meal", "Priority Boarding", "Lounge Access"],
-        availableSeats: 145,
+        amenities: ["WiFi", "In-flight entertainment", "Refreshments"],
+        availableSeats: 156,
+      },
+      {
+        flightNumber: "BA430",
+        airline: "British Airways",
+        airlineCode: "BA",
+        departureAirport: "LHR",
+        arrivalAirport: "AMS",
+        departureTime: "13:15",
+        arrivalTime: "15:45",
+        duration: "1h 30m",
+        price: "186.75",
+        aircraft: "Airbus A320",
+        stops: 0,
+        amenities: ["WiFi", "In-flight entertainment", "Meal service", "Priority boarding"],
+        availableSeats: 134,
+      },
+      {
+        flightNumber: "EZY8844",
+        airline: "easyJet",
+        airlineCode: "EZY",
+        departureAirport: "LGW",
+        arrivalAirport: "AMS",
+        departureTime: "18:30",
+        arrivalTime: "20:45",
+        duration: "1h 15m",
+        price: "89.99",
+        aircraft: "Airbus A319",
+        stops: 0,
+        amenities: ["Snacks for purchase", "WiFi available"],
+        availableSeats: 142,
+      },
+      // Amsterdam to London
+      {
+        flightNumber: "KL1008",
+        airline: "KLM Royal Dutch Airlines",
+        airlineCode: "KL",
+        departureAirport: "AMS",
+        arrivalAirport: "LHR",
+        departureTime: "11:30",
+        arrivalTime: "12:05",
+        duration: "1h 35m",
+        price: "134.25",
+        aircraft: "Boeing 737-800",
+        stops: 0,
+        amenities: ["WiFi", "In-flight entertainment", "Refreshments"],
+        availableSeats: 148,
       },
       {
         flightNumber: "BA431",
         airline: "British Airways",
         airlineCode: "BA",
-        departureAirport: "LHR",
-        arrivalAirport: "AMS",
-        departureTime: "14:15",
-        arrivalTime: "16:45",
-        duration: "1h 30m",
-        price: "985.00",
-        aircraft: "Airbus A320",
-        stops: 0,
-        amenities: ["WiFi", "Meal", "Entertainment"],
-        availableSeats: 134,
-      },
-      
-      // London to Paris
-      {
-        flightNumber: "AF1381",
-        airline: "Air France",
-        airlineCode: "AF",
-        departureAirport: "LHR",
-        arrivalAirport: "CDG",
-        departureTime: "09:40",
-        arrivalTime: "12:15",
+        departureAirport: "AMS",
+        arrivalAirport: "LHR",
+        departureTime: "16:25",
+        arrivalTime: "17:00",
         duration: "1h 35m",
-        price: "1150.00",
-        aircraft: "Airbus A321",
-        stops: 0,
-        amenities: ["WiFi", "Premium Meal", "Entertainment", "Checked Bag"],
-        availableSeats: 180,
-      },
-      {
-        flightNumber: "EK7",
-        airline: "Emirates",
-        airlineCode: "EK",
-        departureAirport: "LHR",
-        arrivalAirport: "CDG",
-        departureTime: "16:30",
-        arrivalTime: "19:10",
-        duration: "1h 40m",
-        price: "1890.00",
-        aircraft: "Airbus A380",
-        stops: 0,
-        amenities: ["Premium WiFi", "Gourmet Meal", "Lie-flat Seats", "Champagne Service"],
-        availableSeats: 85,
-      },
-
-      // London to New York
-      {
-        flightNumber: "VS3",
-        airline: "Virgin Atlantic",
-        airlineCode: "VS",
-        departureAirport: "LHR",
-        arrivalAirport: "JFK",
-        departureTime: "11:45",
-        arrivalTime: "15:10",
-        duration: "8h 25m",
-        price: "2450.00",
-        aircraft: "Boeing 787-9",
-        stops: 0,
-        amenities: ["Premium WiFi", "Premium Meal", "Entertainment", "Premium Economy"],
-        availableSeats: 280,
-      },
-      {
-        flightNumber: "BA117",
-        airline: "British Airways",
-        airlineCode: "BA",
-        departureAirport: "LHR",
-        arrivalAirport: "JFK",
-        departureTime: "19:25",
-        arrivalTime: "22:55",
-        duration: "8h 30m",
-        price: "3125.00",
-        aircraft: "Boeing 777-300ER",
-        stops: 0,
-        amenities: ["Premium WiFi", "Business Class Meal", "Flat Bed", "Lounge Access"],
-        availableSeats: 156,
-      },
-
-      // London to Dubai
-      {
-        flightNumber: "EK1",
-        airline: "Emirates",
-        airlineCode: "EK",
-        departureAirport: "LHR",
-        arrivalAirport: "DXB",
-        departureTime: "14:45",
-        arrivalTime: "00:50",
-        duration: "7h 05m",
-        price: "1875.00",
-        aircraft: "Airbus A380",
-        stops: 0,
-        amenities: ["Premium WiFi", "Gourmet Meal", "Entertainment", "Shower Spa"],
-        availableSeats: 220,
-      },
-
-      // Manchester to Barcelona
-      {
-        flightNumber: "FR2453",
-        airline: "Ryanair",
-        airlineCode: "FR",
-        departureAirport: "MAN",
-        arrivalAirport: "BCN",
-        departureTime: "06:30",
-        arrivalTime: "09:45",
-        duration: "2h 15m",
-        price: "925.00",
-        aircraft: "Boeing 737-800",
-        stops: 0,
-        amenities: ["WiFi", "Food Purchase"],
-        availableSeats: 189,
-      },
-      {
-        flightNumber: "VY8301",
-        airline: "Vueling Airlines",
-        airlineCode: "VY",
-        departureAirport: "MAN",
-        arrivalAirport: "BCN",
-        departureTime: "12:20",
-        arrivalTime: "15:35",
-        duration: "2h 15m",
-        price: "1065.00",
+        price: "195.50",
         aircraft: "Airbus A320",
         stops: 0,
-        amenities: ["WiFi", "Meal", "Entertainment"],
-        availableSeats: 156,
-      },
-
-      // Edinburgh to Rome
-      {
-        flightNumber: "FR817",
-        airline: "Ryanair",
-        airlineCode: "FR",
-        departureAirport: "EDI",
-        arrivalAirport: "FCO",
-        departureTime: "07:15",
-        arrivalTime: "11:20",
-        duration: "3h 05m",
-        price: "945.00",
-        aircraft: "Boeing 737-800",
-        stops: 0,
-        amenities: ["WiFi", "Food Purchase"],
-        availableSeats: 180,
+        amenities: ["WiFi", "In-flight entertainment", "Meal service", "Priority boarding"],
+        availableSeats: 129,
       },
       {
-        flightNumber: "AZ205",
-        airline: "Alitalia",
-        airlineCode: "AZ",
-        departureAirport: "EDI",
-        arrivalAirport: "FCO",
-        departureTime: "15:40",
-        arrivalTime: "19:55",
-        duration: "3h 15m",
-        price: "1290.00",
-        aircraft: "Airbus A321",
-        stops: 0,
-        amenities: ["WiFi", "Premium Meal", "Entertainment", "Lounge Access"],
-        availableSeats: 165,
-      },
-
-      // Birmingham to Frankfurt
-      {
-        flightNumber: "LH925",
-        airline: "Lufthansa",
-        airlineCode: "LH",
-        departureAirport: "BHX",
-        arrivalAirport: "FRA",
-        departureTime: "08:45",
-        arrivalTime: "11:25",
-        duration: "1h 40m",
-        price: "1185.00",
+        flightNumber: "EZY8845",
+        airline: "easyJet",
+        airlineCode: "EZY",
+        departureAirport: "AMS",
+        arrivalAirport: "LGW",
+        departureTime: "21:15",
+        arrivalTime: "21:45",
+        duration: "1h 30m",
+        price: "94.99",
         aircraft: "Airbus A319",
         stops: 0,
-        amenities: ["WiFi", "Premium Meal", "Business Lounge"],
-        availableSeats: 124,
+        amenities: ["Snacks for purchase", "WiFi available"],
+        availableSeats: 138,
       },
-
-      // Gatwick to Tokyo
-      {
-        flightNumber: "JL44",
-        airline: "Japan Airlines",
-        airlineCode: "JL",
-        departureAirport: "LGW",
-        arrivalAirport: "NRT",
-        departureTime: "12:35",
-        arrivalTime: "08:15",
-        duration: "11h 40m",
-        price: "4250.00",
-        aircraft: "Boeing 787-9",
-        stops: 0,
-        amenities: ["Premium WiFi", "Japanese Cuisine", "Lie-flat Seats", "Onsen Spa"],
-        availableSeats: 195,
-      },
-
-      // Heathrow to Sydney
-      {
-        flightNumber: "QF1",
-        airline: "Qantas",
-        airlineCode: "QF",
-        departureAirport: "LHR",
-        arrivalAirport: "SYD",
-        departureTime: "21:45",
-        arrivalTime: "05:25",
-        duration: "21h 40m",
-        price: "5890.00",
-        aircraft: "Airbus A380",
-        stops: 1,
-        amenities: ["Premium WiFi", "First Class Dining", "Private Suites", "Spa Services"],
-        availableSeats: 120,
-      }
     ];
 
-    realisticFlights.forEach(flight => {
-      const id = this.flightCurrentId++;
-      this.flights.set(id, { ...flight, id });
+    realisticFlights.forEach((flightData) => {
+      const flight: Flight = {
+        ...flightData,
+        id: this.flightCurrentId++,
+      };
+      this.flights.set(flight.id, flight);
     });
   }
 
   async searchFlights(from: string, to: string, date: string): Promise<Flight[]> {
-    const results = Array.from(this.flights.values()).filter(flight => 
-      flight.departureAirport === from && flight.arrivalAirport === to
-    );
-
-    // Sort by price by default
+    const results: Flight[] = [];
+    
+    for (const flight of this.flights.values()) {
+      if (flight.departureAirport === from && flight.arrivalAirport === to) {
+        results.push(flight);
+      }
+    }
+    
     return results.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
   }
 
@@ -286,8 +255,8 @@ export class MemStorage implements IStorage {
 
   async createBooking(insertBooking: InsertBooking): Promise<Booking> {
     const id = this.bookingCurrentId++;
-    const bookingReference = `FH-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
-
+    const bookingReference = this.generateBookingReference();
+    
     const booking: Booking = {
       ...insertBooking,
       id,
@@ -320,6 +289,62 @@ export class MemStorage implements IStorage {
     this.searchRequests.set(id, searchRequest);
     return searchRequest;
   }
+
+  async createPendingPayment(insertPendingPayment: InsertPendingPayment): Promise<PendingPayment> {
+    const id = this.pendingPaymentId++;
+    const ticketReference = this.generateTicketReference();
+    const pendingPayment: PendingPayment = {
+      ...insertPendingPayment,
+      id,
+      ticketReference,
+      createdAt: new Date(),
+      status: insertPendingPayment.status ?? "pending",
+      addOns: insertPendingPayment.addOns ?? [],
+    };
+
+    this.pendingPaymentsMap.set(ticketReference, pendingPayment);
+    return pendingPayment;
+  }
+
+  async getPendingPaymentByReference(reference: string): Promise<PendingPayment | undefined> {
+    return this.pendingPaymentsMap.get(reference);
+  }
+
+  async updatePendingPaymentStatus(reference: string, status: string): Promise<void> {
+    const payment = this.pendingPaymentsMap.get(reference);
+    if (payment) {
+      payment.status = status;
+      this.pendingPaymentsMap.set(reference, payment);
+    }
+  }
+
+  async cleanupExpiredPayments(): Promise<void> {
+    const now = new Date();
+    for (const [reference, payment] of this.pendingPaymentsMap) {
+      if (payment.expiresAt < now && payment.status === 'pending') {
+        payment.status = 'expired';
+        this.pendingPaymentsMap.set(reference, payment);
+      }
+    }
+  }
+
+  private generateBookingReference(): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 6; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
+  private generateTicketReference(): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = 'TKT';
+    for (let i = 0; i < 6; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

@@ -1,7 +1,9 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, Download, Mail, Plane, QrCode, AlertTriangle, Calendar, Clock, MapPin, User, Shield } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import type { Flight, Booking } from "@shared/schema";
 
 interface BookingConfirmationProps {
@@ -10,6 +12,9 @@ interface BookingConfirmationProps {
 }
 
 export default function BookingConfirmation({ booking, flight }: BookingConfirmationProps) {
+  const { toast } = useToast();
+  const [isLoadingEmail, setIsLoadingEmail] = useState(false);
+  const [isLoadingDownload, setIsLoadingDownload] = useState(false);
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-GB", {
       day: "2-digit",
@@ -64,6 +69,74 @@ export default function BookingConfirmation({ booking, flight }: BookingConfirma
 
   const generatePNR = () => {
     return booking.bookingReference;
+  };
+
+  const handleEmailTicket = async () => {
+    setIsLoadingEmail(true);
+    try {
+      const response = await fetch(`/api/pending-payments/${booking.bookingReference}/send-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send email");
+      }
+
+      const result = await response.json();
+      
+      toast({
+        title: "Email Sent",
+        description: "Payment reminder email has been sent successfully.",
+      });
+    } catch (error) {
+      console.error("Email error:", error);
+      toast({
+        title: "Email Failed",
+        description: "Unable to send email. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingEmail(false);
+    }
+  };
+
+  const handleDownloadTicket = async () => {
+    setIsLoadingDownload(true);
+    try {
+      const response = await fetch(`/api/pending-payments/${booking.bookingReference}/download`);
+
+      if (!response.ok) {
+        throw new Error("Failed to download ticket");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `ticket-${booking.bookingReference}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: "Ticket Downloaded",
+        description: "Your ticket has been downloaded successfully.",
+      });
+    } catch (error) {
+      console.error("Download error:", error);
+      toast({
+        title: "Download Failed",
+        description: "Unable to download ticket. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingDownload(false);
+    }
   };
 
   const today = new Date().toISOString().split('T')[0];
@@ -367,13 +440,21 @@ export default function BookingConfirmation({ booking, flight }: BookingConfirma
             Complete Payment
           </Button>
         )}
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+        <Button 
+          className="bg-blue-600 hover:bg-blue-700 text-white"
+          onClick={handleDownloadTicket}
+          disabled={isLoadingDownload}
+        >
           <Download className="w-4 h-4 mr-2" />
-          Download Ticket
+          {isLoadingDownload ? "Downloading..." : "Download Ticket"}
         </Button>
-        <Button variant="outline">
+        <Button 
+          variant="outline"
+          onClick={handleEmailTicket}
+          disabled={isLoadingEmail}
+        >
           <Mail className="w-4 h-4 mr-2" />
-          Email Ticket
+          {isLoadingEmail ? "Sending..." : "Email Ticket"}
         </Button>
       </div>
     </div>
