@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Check, Download, Mail, Plane, QrCode, AlertTriangle, Calendar, Clock, MapPin, User, Shield } from "lucide-react";
+import { Check, Download, Mail, Plane, QrCode, AlertTriangle, Calendar, Clock, MapPin, User, Shield, CreditCard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Flight, Booking } from "@shared/schema";
 
@@ -86,7 +85,7 @@ export default function BookingConfirmation({ booking, flight }: BookingConfirma
       }
 
       const result = await response.json();
-      
+
       toast({
         title: "Email Sent",
         description: "Payment reminder email has been sent successfully.",
@@ -196,7 +195,7 @@ export default function BookingConfirmation({ booking, flight }: BookingConfirma
           <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white relative">
             {/* Security Strip */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-400 via-yellow-400 via-green-400 to-blue-400"></div>
-            
+
             <div className="px-6 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
@@ -260,7 +259,7 @@ export default function BookingConfirmation({ booking, flight }: BookingConfirma
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex flex-col items-center px-6">
                     <div className="w-12 h-px bg-gray-400 mb-1"></div>
                     <Plane className="w-6 h-6 text-blue-600 transform rotate-90" />
@@ -382,7 +381,7 @@ export default function BookingConfirmation({ booking, flight }: BookingConfirma
                   ))}
                 </div>
               </div>
-              
+
               <div className="relative z-10 h-full flex flex-col">
                 {/* QR Code Section */}
                 <div className="text-center mb-6">

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -54,7 +53,7 @@ export default function PaymentForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!agreeToTerms) {
       toast({
         title: "Terms Required",
@@ -174,7 +173,7 @@ export default function PaymentForm({
       }
 
       const pendingPayment = await response.json();
-      
+
       // Convert pending payment to booking format for confirmation screen
       const booking = {
         id: pendingPayment.id,
