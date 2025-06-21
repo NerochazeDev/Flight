@@ -62,39 +62,9 @@ export default function PendingTickets() {
     }
   };
 
-  const handleCompletePayment = async (reference: string) => {
-    try {
-      setProcessingPayment(reference);
-      const response = await fetch(`/api/pending-payments/${reference}/complete`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to complete payment");
-      }
-
-      const booking = await response.json();
-      
-      toast({
-        title: "Payment Successful!",
-        description: `Your booking ${booking.reference} has been confirmed.`,
-      });
-
-      // Refresh the pending tickets list
-      fetchPendingTickets();
-    } catch (error) {
-      console.error("Error completing payment:", error);
-      toast({
-        title: "Payment Failed",
-        description: "Unable to process your payment. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setProcessingPayment(null);
-    }
+  const handleCompletePayment = (reference: string) => {
+    // Redirect to the complete payment process page
+    window.location.href = `/complete-payment/${reference}`;
   };
 
   const calculateWorkingDaysRemaining = (expiresAt: Date) => {

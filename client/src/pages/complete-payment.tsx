@@ -86,8 +86,10 @@ export default function CompletePayment() {
         description: `Your booking ${booking.reference} has been confirmed.`,
       });
 
-      // Redirect to booking confirmation or home
-      window.location.href = '/';
+      // Redirect back to pending page to show updated status
+      setTimeout(() => {
+        window.location.href = '/pending';
+      }, 2000);
     } catch (error) {
       console.error("Error completing payment:", error);
       toast({
