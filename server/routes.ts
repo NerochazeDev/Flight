@@ -123,6 +123,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all pending payments
+  app.get("/api/pending-payments", async (req, res) => {
+    try {
+      const pendingPayments = await storage.getAllPendingPayments();
+      res.json(pendingPayments);
+    } catch (error) {
+      console.error("Get all pending payments error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // Get pending payment by reference
   app.get("/api/pending-payments/:reference", async (req, res) => {
     try {

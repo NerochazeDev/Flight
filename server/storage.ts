@@ -17,6 +17,7 @@ export interface IStorage {
   // Pending payment operations
   createPendingPayment(pendingPayment: InsertPendingPayment): Promise<PendingPayment>;
   getPendingPaymentByReference(reference: string): Promise<PendingPayment | undefined>;
+  getAllPendingPayments(): Promise<PendingPayment[]>;
   updatePendingPaymentStatus(reference: string, status: string): Promise<void>;
   cleanupExpiredPayments(): Promise<void>;
 }
@@ -73,6 +74,11 @@ export class DatabaseStorage implements IStorage {
   async getPendingPaymentByReference(reference: string): Promise<PendingPayment | undefined> {
     const [pendingPayment] = await db.select().from(pendingPayments).where(eq(pendingPayments.ticketReference, reference));
     return pendingPayment || undefined;
+  }
+
+  async getAllPendingPayments(): Promise<PendingPayment[]> {
+    const pendingPaymentsList = await db.select().from(pendingPayments).where(eq(pendingPayments.status, 'pending'));
+    return pendingPaymentsList;
   }
 
   async updatePendingPaymentStatus(reference: string, status: string): Promise<void> {
@@ -308,6 +314,11 @@ export class MemStorage implements IStorage {
 
   async getPendingPaymentByReference(reference: string): Promise<PendingPayment | undefined> {
     return this.pendingPaymentsMap.get(reference);
+  }
+
+  async getAllPendingPayments(): Promise<PendingPayment[]> {
+    const allPayments = Array.from(this.pendingPaymentsMap.values());
+    return allPayments.filter(payment => payment.status === 'pending');
   }
 
   async updatePendingPaymentStatus(reference: string, status: string): Promise<void> {

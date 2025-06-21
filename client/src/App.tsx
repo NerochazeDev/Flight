@@ -7,14 +7,15 @@ import Home from "@/pages/home";
 import NotFound from "@/pages/not-found";
 import CompletePayment from "@/pages/complete-payment";
 import EmailPreview from "@/pages/email-preview";
+import PendingTickets from "@/pages/pending";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/pending/:reference" component={CompletePayment} />
+      <Route path="/pending" component={PendingTickets} />
       <Route path="/complete-payment/:reference" component={CompletePayment} />
-      <Route path="/email/:reference" component={EmailPreview} />
+      <Route path="/email-preview/:reference" component={EmailPreview} />
       <Route component={NotFound} />
     </Switch>
   );

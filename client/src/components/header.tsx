@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Menu, Globe } from "lucide-react";
+import { Menu, Globe, Clock } from "lucide-react";
+import { Link } from "wouter";
 
 export default function Header() {
   return (
@@ -14,7 +15,11 @@ export default function Header() {
               </svg>
             </div>
             <nav className="hidden md:flex space-x-8">
-              <a href="#" className="text-gray-700 hover:text-blue-600 text-sm font-medium">Flights</a>
+              <Link href="/" className="text-gray-700 hover:text-blue-600 text-sm font-medium">Flights</Link>
+              <Link href="/pending" className="text-gray-700 hover:text-blue-600 text-sm font-medium flex items-center gap-1">
+                <Clock className="h-4 w-4" />
+                Pending Tickets
+              </Link>
               <a href="#" className="text-gray-500 hover:text-blue-600 text-sm font-medium">Hotels</a>
               <a href="#" className="text-gray-500 hover:text-blue-600 text-sm font-medium">Car hire</a>
             </nav>
