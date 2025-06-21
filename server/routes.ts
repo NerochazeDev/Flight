@@ -93,7 +93,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create pending payment ticket
   app.post("/api/pending-payments", async (req, res) => {
     try {
-      const validationResult = insertPendingPaymentSchema.safeParse(req.body);
+      // Create a custom validation schema that handles date strings
+      const pendingPaymentValidation = z.object({
+        flightId: z.number(),
+        passengerName: z.string(),
+        passengerEmail: z.string().email(),
+        passengerPhone: z.string(),
+        passengerDetails: z.string(),
+        passengers: z.number().optional(),
+        totalPrice: z.string(),
+        addOns: z.array(z.string()).optional(),
+        expiresAt: z.string().transform((str) => new Date(str)),
+      });
+
+      const validationResult = pendingPaymentValidation.safeParse(req.body);
       
       if (!validationResult.success) {
         return res.status(400).json({ 
