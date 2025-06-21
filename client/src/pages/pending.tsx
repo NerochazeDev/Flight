@@ -116,14 +116,14 @@ export default function PendingTickets() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-6">
+          <div className="grid gap-6 w-full">
             {pendingTickets.map((ticket) => {
               const workingDaysLeft = calculateWorkingDaysRemaining(ticket.expiresAt);
               const expired = isExpired(ticket.expiresAt);
               
               return (
-                <Card key={ticket.ticketReference} className="overflow-hidden">
-                  <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                <Card key={ticket.ticketReference} className="w-full border shadow-sm">
+                  <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 pb-4">
                     <div className="flex justify-between items-start">
                       <div>
                         <CardTitle className="flex items-center gap-2">
@@ -140,56 +140,50 @@ export default function PendingTickets() {
                     </div>
                   </CardHeader>
 
-                  <CardContent className="p-6 space-y-6">
+                  <CardContent className="p-6 space-y-6 w-full overflow-visible">
                     {/* Professional Email Message */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 w-full">
                       <div className="flex items-start gap-3">
-                        <Mail className="h-5 w-5 text-blue-600 mt-0.5" />
-                        <div className="flex-1">
+                        <Mail className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-blue-900 mb-2">Payment Reminder</h3>
-                          <p className="text-blue-800 text-sm leading-relaxed">
-                            Dear {ticket.passengerName},<br /><br />
-                            Thank you for choosing our airline services. This is a friendly reminder that your flight booking 
-                            payment is pending completion. To secure your reservation and avoid cancellation, please complete 
-                            your payment within <strong>{workingDaysLeft} working days</strong>.
-                            <br /><br />
-                            Should you have any questions or require assistance, please don't hesitate to contact our 
-                            customer service team.
-                            <br /><br />
-                            Best regards,<br />
-                            <em>SkyBooker Airlines Team</em>
-                          </p>
+                          <div className="text-blue-800 text-sm leading-relaxed space-y-2">
+                            <p>Dear {ticket.passengerName},</p>
+                            <p>Thank you for choosing our airline services. This is a friendly reminder that your flight booking payment is pending completion. To secure your reservation and avoid cancellation, please complete your payment within <strong>{workingDaysLeft} working days</strong>.</p>
+                            <p>Should you have any questions or require assistance, please don't hesitate to contact our customer service team.</p>
+                            <p>Best regards,<br /><em>SkyBooker Airlines Team</em></p>
+                          </div>
                         </div>
                       </div>
                     </div>
 
                     {/* Flight Details */}
                     {ticket.flight && (
-                      <div className="space-y-4">
+                      <div className="space-y-4 w-full">
                         <h3 className="font-semibold flex items-center gap-2">
                           <Plane className="h-4 w-4" />
                           Flight Details
                         </h3>
-                        <div className="bg-gray-50 p-4 rounded-lg space-y-3">
-                          <div className="flex justify-between items-center">
+                        <div className="bg-gray-50 p-4 rounded-lg space-y-3 w-full">
+                          <div className="flex justify-between items-center flex-wrap gap-2">
                             <span className="font-medium">
                               {ticket.flight.departureAirport} → {ticket.flight.arrivalAirport}
                             </span>
                             <Badge variant="outline">{ticket.flight.flightNumber}</Badge>
                           </div>
-                          <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600">
                             <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4" />
-                              <span>Departure: {new Date(ticket.flight.departureTime).toLocaleString()}</span>
+                              <Calendar className="h-4 w-4 flex-shrink-0" />
+                              <span className="break-words">Departure: {new Date(ticket.flight.departureTime).toLocaleString()}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Clock className="h-4 w-4" />
+                              <Clock className="h-4 w-4 flex-shrink-0" />
                               <span>Duration: {ticket.flight.duration}</span>
                             </div>
-                            <div>
+                            <div className="flex items-center gap-2">
                               <span>Aircraft: {ticket.flight.aircraft || "N/A"}</span>
                             </div>
-                            <div>
+                            <div className="flex items-center gap-2">
                               <span>Airline: {ticket.flight.airline}</span>
                             </div>
                           </div>
@@ -251,12 +245,13 @@ export default function PendingTickets() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-4 pt-2">
+                    <div className="flex flex-col sm:flex-row gap-3 pt-2 w-full">
                       {!expired && (
                         <Button 
                           onClick={() => handleCompletePayment(ticket.ticketReference)}
                           disabled={processingPayment === ticket.ticketReference}
-                          className="flex-1"
+                          className="flex-1 min-w-0"
+                          size="lg"
                         >
                           {processingPayment === ticket.ticketReference ? (
                             <>
@@ -274,6 +269,8 @@ export default function PendingTickets() {
                       <Button 
                         variant="outline" 
                         onClick={() => window.location.href = `/email-preview/${ticket.ticketReference}`}
+                        className="min-w-fit"
+                        size="lg"
                       >
                         <Mail className="h-4 w-4 mr-2" />
                         View Email
