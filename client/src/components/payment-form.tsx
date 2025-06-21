@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, CreditCard, Gift } from "lucide-react";
+import { ArrowLeft, CreditCard, Gift, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Flight, Booking } from "@shared/schema";
 import {
@@ -25,14 +25,14 @@ interface PaymentFormProps {
   onBack: () => void;
 }
 
-export default function PaymentForm({ 
-  flight, 
-  passengers, 
-  totalAmount, 
-  passengerDetails, 
-  addOns, 
-  onPaymentComplete, 
-  onBack 
+export default function PaymentForm({
+  flight,
+  passengers,
+  totalAmount,
+  passengerDetails,
+  addOns,
+  onPaymentComplete,
+  onBack
 }: PaymentFormProps) {
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -61,7 +61,7 @@ export default function PaymentForm({
       }
       if (!giftCardCode.trim()) {
         toast({
-          title: "Gift card code required", 
+          title: "Gift card code required",
           description: "Please enter a gift card code",
           variant: "destructive",
         });
@@ -112,6 +112,55 @@ export default function PaymentForm({
       setIsProcessing(false);
     }
   };
+
+  const handleSkipPayment = async () => {
+    setIsProcessing(true);
+
+    try {
+      const bookingData = {
+        flightId: flight.id,
+        passengerName: `${passengerDetails.firstName} ${passengerDetails.lastName}`,
+        passengerEmail: passengerDetails.email,
+        passengerPhone: passengerDetails.phone,
+        passengers,
+        totalPrice: totalAmount,
+        addOns,
+        status: "pending", // Set status to pending
+        paymentMethod: "Skipped",
+      };
+
+      const response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create booking");
+      }
+
+      const booking = await response.json();
+      onPaymentComplete(booking);
+
+      toast({
+        title: "Payment Skipped!",
+        description: `Your booking reference is ${booking.bookingReference}.  Payment is pending. Please pay before your flight.`,
+        icon: <AlertTriangle className="h-4 w-4" />,
+      });
+    } catch (error) {
+      console.error("Booking error:", error);
+      toast({
+        title: "Booking Failed",
+        description: "There was an error creating your booking. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
 
   const updateCardDetails = (key: keyof typeof cardDetails, value: string) => {
     setCardDetails(prev => ({ ...prev, [key]: value }));
@@ -209,17 +258,17 @@ export default function PaymentForm({
                     <SelectValue placeholder="Select gift card type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="apple">🍎 Apple Gift Card</SelectItem>
-                    <SelectItem value="google">🎮 Google Play Gift Card</SelectItem>
-                    <SelectItem value="amazon">📦 Amazon Gift Card</SelectItem>
-                    <SelectItem value="netflix">🎬 Netflix Gift Card</SelectItem>
-                    <SelectItem value="spotify">🎵 Spotify Gift Card</SelectItem>
-                    <SelectItem value="steam">🎮 Steam Gift Card</SelectItem>
-                    <SelectItem value="xbox">🎮 Xbox Gift Card</SelectItem>
-                    <SelectItem value="playstation">🎮 PlayStation Gift Card</SelectItem>
-                    <SelectItem value="visa">💳 Visa Gift Card</SelectItem>
-                    <SelectItem value="mastercard">💳 Mastercard Gift Card</SelectItem>
-                    <SelectItem value="american-express">💳 American Express Gift Card</SelectItem>
+                    <SelectItem value="apple">Apple Gift Card</SelectItem>
+                    <SelectItem value="google">Google Play Gift Card</SelectItem>
+                    <SelectItem value="amazon">Amazon Gift Card</SelectItem>
+                    <SelectItem value="netflix">Netflix Gift Card</SelectItem>
+                    <SelectItem value="spotify">Spotify Gift Card</SelectItem>
+                    <SelectItem value="steam">Steam Gift Card</SelectItem>
+                    <SelectItem value="xbox">Xbox Gift Card</SelectItem>
+                    <SelectItem value="playstation">PlayStation Gift Card</SelectItem>
+                    <SelectItem value="visa">Visa Gift Card</SelectItem>
+                    <SelectItem value="mastercard">Mastercard Gift Card</SelectItem>
+                    <SelectItem value="american-express">American Express Gift Card</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -233,9 +282,6 @@ export default function PaymentForm({
                   required
                 />
               </div>
-              <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-                <strong>Note:</strong> Any gift card code will be accepted for demonstration purposes.
-              </div>
             </div>
           )}
 
@@ -244,15 +290,29 @@ export default function PaymentForm({
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Details
             </Button>
-            <Button
-              type="submit"
-              className="bg-primary hover:bg-primary-dark text-white px-8 py-3"
-              disabled={isProcessing}
-            >
-              {isProcessing ? "Processing..." : `Pay £${totalAmount}`}
-            </Button>
+            <div className="flex space-x-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleSkipPayment}
+                disabled={isProcessing}
+              >
+                {isProcessing ? "Processing..." : "Skip Payment"}
+              </Button>
+              <Button
+                type="submit"
+                className="bg-primary hover:bg-primary-dark text-white px-8 py-3"
+                disabled={isProcessing}
+              >
+                {isProcessing ? "Processing..." : `Pay £${totalAmount}`}
+              </Button>
+            </div>
           </div>
         </form>
+        {/* Placeholder for real-life ticket UI - can be a modal or separate component */}
+        <div className="mt-4">
+          <Button variant="link">View Example Ticket</Button>
+        </div>
       </CardContent>
     </Card>
   );
