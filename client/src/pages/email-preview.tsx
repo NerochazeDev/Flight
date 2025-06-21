@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Mail, AlertTriangle, Clock } from "lucide-react";
@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function EmailPreview() {
   const { reference } = useParams();
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [emailData, setEmailData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -81,7 +81,7 @@ export default function EmailPreview() {
             <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-xl font-bold mb-2">Email Not Found</h2>
             <p className="text-gray-600 mb-4">Unable to load email preview for this booking reference.</p>
-            <Button onClick={() => navigate("/")} variant="outline">
+            <Button onClick={() => setLocation("/")} variant="outline">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Home
             </Button>
@@ -95,7 +95,7 @@ export default function EmailPreview() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto p-6">
         <div className="mb-6">
-          <Button onClick={() => navigate("/")} variant="outline" className="mb-4">
+          <Button onClick={() => setLocation("/")} variant="outline" className="mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Button>
@@ -163,14 +163,14 @@ export default function EmailPreview() {
             <CardContent className="space-y-3">
               <Button 
                 className="w-full bg-blue-600 hover:bg-blue-700"
-                onClick={() => navigate(`/complete-payment/${reference}`)}
+                onClick={() => setLocation(`/complete-payment/${reference}`)}
               >
                 Complete Payment Now
               </Button>
               <Button 
                 variant="outline" 
                 className="w-full"
-                onClick={() => navigate(`/booking/${reference}`)}
+                onClick={() => setLocation(`/booking/${reference}`)}
               >
                 View Booking Details
               </Button>
