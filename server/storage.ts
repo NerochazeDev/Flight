@@ -66,8 +66,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getFlightById(id: number): Promise<Flight | undefined> {
-    const tempStorage = new MemStorage();
-    return tempStorage.getFlightById(id);
+    const result = await db.select().from(flights).where(eq(flights.id, id));
+    return result[0] || undefined;
   }
 
   async createBooking(insertBooking: InsertBooking): Promise<Booking> {

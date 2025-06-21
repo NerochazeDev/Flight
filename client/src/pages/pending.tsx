@@ -1,10 +1,18 @@
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { Clock, CreditCard, Plane, Mail, Calendar, Users, Package } from "lucide-react";
+import { 
+  Clock, 
+  Plane, 
+  Mail, 
+  CreditCard, 
+  Calendar, 
+  Users, 
+  Package 
+} from "lucide-react";
 import { PendingPayment, Flight } from "@/../../shared/schema";
 
 interface PendingTicketWithFlight extends PendingPayment {
@@ -18,53 +26,52 @@ export default function PendingTickets() {
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchPendingTickets();
-  }, []);
+    const fetchPendingTickets = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/pending-payments');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch pending tickets');
+        }
 
-  const fetchPendingTickets = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch('/api/pending-payments');
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch pending tickets');
-      }
-
-      const tickets = await response.json();
-      
-      // Fetch flight details for each ticket
-      const ticketsWithFlights = await Promise.all(
-        tickets.map(async (ticket: PendingPayment) => {
-          try {
-            const flightResponse = await fetch(`/api/flights/${ticket.flightId}`);
-            if (flightResponse.ok) {
-              const flight = await flightResponse.json();
-              return { ...ticket, flight };
+        const tickets: PendingPayment[] = await response.json();
+        
+        // Fetch flight details for each ticket
+        const ticketsWithFlights = await Promise.all(
+          tickets.map(async (ticket: PendingPayment) => {
+            try {
+              const flightResponse = await fetch(`/api/flights/${ticket.flightId}`);
+              if (flightResponse.ok) {
+                const flight = await flightResponse.json();
+                return { ...ticket, flight };
+              }
+              return ticket;
+            } catch (error) {
+              console.error(`Error fetching flight ${ticket.flightId}:`, error);
+              return ticket;
             }
-            return ticket;
-          } catch (error) {
-            console.error(`Failed to fetch flight ${ticket.flightId}:`, error);
-            return ticket;
-          }
-        })
-      );
+          })
+        );
 
-      setPendingTickets(ticketsWithFlights);
-    } catch (error) {
-      console.error('Error fetching pending tickets:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load pending tickets",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        setPendingTickets(ticketsWithFlights);
+      } catch (error) {
+        console.error('Error fetching pending tickets:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load pending tickets",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const handleCompletePayment = (reference: string) => {
-    // Redirect to the payment form page
-    window.location.href = `/payment/${reference}`;
+    fetchPendingTickets();
+  }, [toast]);
+
+  const handleCompletePayment = async (ticketReference: string) => {
+    window.location.href = `/payment/${ticketReference}`;
   };
 
   const calculateWorkingDaysRemaining = (expiresAt: Date) => {
@@ -72,11 +79,22 @@ export default function PendingTickets() {
     const expiry = new Date(expiresAt);
     const diffTime = expiry.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(0, diffDays);
+    
+    // Count only working days (excluding weekends)
+    let workingDays = 0;
+    for (let i = 0; i < diffDays; i++) {
+      const date = new Date(now.getTime() + (i * 24 * 60 * 60 * 1000));
+      const dayOfWeek = date.getDay();
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Not Sunday (0) or Saturday (6)
+        workingDays++;
+      }
+    }
+    
+    return Math.max(0, workingDays);
   };
 
   const isExpired = (expiresAt: Date) => {
-    return new Date(expiresAt) < new Date();
+    return new Date() > new Date(expiresAt);
   };
 
   if (isLoading) {
@@ -122,8 +140,8 @@ export default function PendingTickets() {
               const expired = isExpired(ticket.expiresAt);
               
               return (
-                <Card key={ticket.ticketReference} className="w-full border shadow-sm">
-                  <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 pb-4">
+                <Card key={ticket.ticketReference} className="w-full overflow-visible">
+                  <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
                     <div className="flex justify-between items-start">
                       <div>
                         <CardTitle className="flex items-center gap-2">
@@ -140,7 +158,7 @@ export default function PendingTickets() {
                     </div>
                   </CardHeader>
 
-                  <CardContent className="p-6 space-y-6 w-full overflow-visible">
+                  <CardContent className="p-6 space-y-6">
                     {/* Professional Email Message */}
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 w-full">
                       <div className="flex items-start gap-3">
@@ -174,7 +192,9 @@ export default function PendingTickets() {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600">
                             <div className="flex items-center gap-2">
                               <Calendar className="h-4 w-4 flex-shrink-0" />
-                              <span className="break-words">Departure: {new Date(ticket.flight.departureTime).toLocaleString()}</span>
+                              <span className="break-words">
+                                Departure: {new Date(ticket.flight.departureTime).toLocaleDateString('en-GB')} at {new Date(ticket.flight.departureTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                              </span>
                             </div>
                             <div className="flex items-center gap-2">
                               <Clock className="h-4 w-4 flex-shrink-0" />
@@ -193,8 +213,8 @@ export default function PendingTickets() {
 
                     <Separator />
 
-                    {/* Booking Summary */}
-                    <div className="grid grid-cols-2 gap-4">
+                    {/* Passenger and Pricing Information */}
+                    <div className="flex justify-between items-center flex-wrap gap-4">
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <Users className="h-4 w-4 text-gray-500" />
