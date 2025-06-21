@@ -106,27 +106,41 @@ export default function BookingConfirmation({ booking, flight }: BookingConfirma
   const handleDownloadTicket = async () => {
     setIsLoadingDownload(true);
     try {
-      const response = await fetch(`/api/pending-payments/${booking.bookingReference}/download`);
-
-      if (!response.ok) {
-        throw new Error("Failed to download ticket");
+      // Create a canvas to render the ticket as an image
+      const ticketElement = document.querySelector('.ticket-card') as HTMLElement;
+      if (!ticketElement) {
+        throw new Error("Ticket element not found");
       }
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = `ticket-${booking.bookingReference}.json`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
-      toast({
-        title: "Ticket Downloaded",
-        description: "Your ticket has been downloaded successfully.",
+      // Use html2canvas library (we'll install it)
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(ticketElement, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        logging: false,
+        useCORS: true
       });
+
+      // Convert canvas to image and download
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = `ticket-${booking.bookingReference}.png`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+
+          toast({
+            title: "Ticket Downloaded",
+            description: "Your ticket image has been downloaded successfully.",
+          });
+        }
+      }, 'image/png');
+
     } catch (error) {
       console.error("Download error:", error);
       toast({
@@ -176,7 +190,7 @@ export default function BookingConfirmation({ booking, flight }: BookingConfirma
       </Card>
 
       {/* Realistic Airline Ticket */}
-      <Card className="shadow-2xl bg-white overflow-hidden max-w-5xl mx-auto">
+      <Card className="ticket-card shadow-2xl bg-white overflow-hidden max-w-5xl mx-auto">
         <CardContent className="p-0">
           {/* Airline Header */}
           <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white relative">
@@ -435,7 +449,10 @@ export default function BookingConfirmation({ booking, flight }: BookingConfirma
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3 justify-center">
         {isPendingPayment && (
-          <Button className="bg-red-600 hover:bg-red-700 text-white">
+          <Button 
+            className="bg-red-600 hover:bg-red-700 text-white"
+            onClick={() => window.open(`/complete-payment/${booking.bookingReference}`, '_blank')}
+          >
             <AlertTriangle className="w-4 h-4 mr-2" />
             Complete Payment
           </Button>
@@ -455,6 +472,13 @@ export default function BookingConfirmation({ booking, flight }: BookingConfirma
         >
           <Mail className="w-4 h-4 mr-2" />
           {isLoadingEmail ? "Sending..." : "Email Ticket"}
+        </Button>
+        <Button 
+          variant="outline"
+          onClick={() => window.open(`/email-preview/${booking.bookingReference}`, '_blank')}
+        >
+          <Mail className="w-4 h-4 mr-2" />
+          View Email Preview
         </Button>
       </div>
     </div>

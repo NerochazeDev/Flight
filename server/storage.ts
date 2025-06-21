@@ -144,7 +144,7 @@ export class MemStorage implements IStorage {
         departureTime: "08:25",
         arrivalTime: "10:50",
         duration: "1h 25m",
-        price: "124.50",
+        price: (Math.random() * 300 + 900).toFixed(2), // £900-1200
         aircraft: "Boeing 737-800",
         stops: 0,
         amenities: ["WiFi", "In-flight entertainment", "Refreshments"],
@@ -159,7 +159,7 @@ export class MemStorage implements IStorage {
         departureTime: "13:15",
         arrivalTime: "15:45",
         duration: "1h 30m",
-        price: "186.75",
+        price: (Math.random() * 300 + 900).toFixed(2), // £900-1200
         aircraft: "Airbus A320",
         stops: 0,
         amenities: ["WiFi", "In-flight entertainment", "Meal service", "Priority boarding"],
@@ -174,7 +174,7 @@ export class MemStorage implements IStorage {
         departureTime: "18:30",
         arrivalTime: "20:45",
         duration: "1h 15m",
-        price: "89.99",
+        price: (Math.random() * 300 + 900).toFixed(2), // £900-1200
         aircraft: "Airbus A319",
         stops: 0,
         amenities: ["Snacks for purchase", "WiFi available"],
@@ -190,7 +190,7 @@ export class MemStorage implements IStorage {
         departureTime: "11:30",
         arrivalTime: "12:05",
         duration: "1h 35m",
-        price: "134.25",
+        price: (Math.random() * 300 + 900).toFixed(2), // £900-1200
         aircraft: "Boeing 737-800",
         stops: 0,
         amenities: ["WiFi", "In-flight entertainment", "Refreshments"],
@@ -205,7 +205,7 @@ export class MemStorage implements IStorage {
         departureTime: "16:25",
         arrivalTime: "17:00",
         duration: "1h 35m",
-        price: "195.50",
+        price: (Math.random() * 300 + 900).toFixed(2), // £900-1200
         aircraft: "Airbus A320",
         stops: 0,
         amenities: ["WiFi", "In-flight entertainment", "Meal service", "Priority boarding"],
@@ -220,7 +220,7 @@ export class MemStorage implements IStorage {
         departureTime: "21:15",
         arrivalTime: "21:45",
         duration: "1h 30m",
-        price: "94.99",
+        price: (Math.random() * 300 + 900).toFixed(2), // £900-1200
         aircraft: "Airbus A319",
         stops: 0,
         amenities: ["Snacks for purchase", "WiFi available"],
@@ -239,13 +239,13 @@ export class MemStorage implements IStorage {
 
   async searchFlights(from: string, to: string, date: string): Promise<Flight[]> {
     const results: Flight[] = [];
-    
+
     for (const flight of this.flights.values()) {
       if (flight.departureAirport === from && flight.arrivalAirport === to) {
         results.push(flight);
       }
     }
-    
+
     return results.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
   }
 
@@ -256,7 +256,7 @@ export class MemStorage implements IStorage {
   async createBooking(insertBooking: InsertBooking): Promise<Booking> {
     const id = this.bookingCurrentId++;
     const bookingReference = this.generateBookingReference();
-    
+
     const booking: Booking = {
       ...insertBooking,
       id,

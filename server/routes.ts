@@ -205,7 +205,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               
               <p>Dear ${pendingPayment.passengerName},</p>
               
-              <p>Your flight booking is currently pending payment completion. Please complete your payment within <strong>24 hours</strong> to secure your reservation.</p>
+              <p>Your flight booking is currently pending payment completion. Please complete your payment within <strong>4 days minimum</strong> to secure your reservation.</p>
               
               <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
                 <h3 style="margin-top: 0; color: #1e40af;">Flight Details</h3>
