@@ -63,8 +63,8 @@ export default function PendingTickets() {
   };
 
   const handleCompletePayment = (reference: string) => {
-    // Redirect to the complete payment process page
-    window.location.href = `/complete-payment/${reference}`;
+    // Redirect to the payment form page
+    window.location.href = `/payment/${reference}`;
   };
 
   const calculateWorkingDaysRemaining = (expiresAt: Date) => {
