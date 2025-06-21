@@ -1,16 +1,16 @@
-
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, CreditCard, Lock, AlertTriangle, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 export default function CompletePayment() {
   const { reference } = useParams();
-  const navigate = useNavigate();
+  const [setLocation] = useLocation();
   const { toast } = useToast();
   const [pendingPayment, setPendingPayment] = useState<any>(null);
   const [flight, setFlight] = useState<any>(null);
@@ -58,7 +58,7 @@ export default function CompletePayment() {
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv || !cardDetails.name) {
       toast({
         title: "Card details required",
@@ -83,14 +83,14 @@ export default function CompletePayment() {
       }
 
       const result = await response.json();
-      
+
       toast({
         title: "Payment Successful!",
         description: `Your booking is confirmed. Reference: ${result.booking.bookingReference}`,
       });
 
       // Redirect to confirmation page
-      navigate(`/booking/${result.booking.bookingReference}`);
+      setLocation(`/booking/${result.booking.bookingReference}`);
     } catch (error) {
       console.error("Payment error:", error);
       toast({
@@ -138,13 +138,13 @@ export default function CompletePayment() {
     const now = new Date();
     const expiry = new Date(pendingPayment.expiresAt);
     const diff = expiry.getTime() - now.getTime();
-    
+
     if (diff <= 0) return "EXPIRED";
-    
+
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    
+
     if (days > 0) return `${days}d ${hours}h`;
     if (hours > 0) return `${hours}h ${minutes}m`;
     return `${minutes}m`;
@@ -169,7 +169,7 @@ export default function CompletePayment() {
             <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-xl font-bold mb-2">Payment Not Found</h2>
             <p className="text-gray-600 mb-4">This payment link may have expired or the booking reference is invalid.</p>
-            <Button onClick={() => navigate("/")} variant="outline">
+            <Button onClick={() => setLocation("/")} variant="outline">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Home
             </Button>
@@ -190,7 +190,7 @@ export default function CompletePayment() {
             <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-xl font-bold mb-2">Payment Expired</h2>
             <p className="text-gray-600 mb-4">This payment has expired or has already been processed.</p>
-            <Button onClick={() => navigate("/")} variant="outline">
+            <Button onClick={() => setLocation("/")} variant="outline">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Home
             </Button>
@@ -203,7 +203,7 @@ export default function CompletePayment() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto p-6">
-        <Button onClick={() => navigate("/")} variant="outline" className="mb-6">
+        <Button onClick={() => setLocation("/")} variant="outline" className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Home
         </Button>
